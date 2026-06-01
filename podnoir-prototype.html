@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pod Noir — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --amber:#d4874a;
+  --amber2:#e8a066;
+  --amber-dark:#a05e2c;
+  --dark:#12100e;
+  --dark2:#1c1916;
+  --dark3:#242018;
+  --surface:#2a2520;
+  --surface2:#332e28;
+  --off:#7a7068;
+  --white:#ffffff;
+  --pink:#d4607a;
+}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:linear-gradient(135deg,#0e0c0a 0%,#1c1510 50%,#0e0c0a 100%);
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:2rem 1rem 4rem;
+}
+.proto-header{width:100%;max-width:960px;display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;padding:0 0.5rem;}
+.proto-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;color:#fff;letter-spacing:-0.02em;}
+.proto-logo span{color:var(--amber);}
+.proto-badge{font-size:0.68rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);background:rgba(255,255,255,0.06);padding:0.4rem 0.9rem;border-radius:20px;border:1px solid rgba(255,255,255,0.09);}
+.stage-row{width:100%;max-width:960px;display:flex;gap:5px;margin-bottom:1.5rem;flex-wrap:wrap;}
+.sb{flex:1;min-width:72px;padding:5px 6px;border:1px solid rgba(255,255,255,0.09);background:rgba(255,255,255,0.04);border-radius:7px;font-size:0.65rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:rgba(255,255,255,0.35);cursor:pointer;transition:all 0.2s;text-align:center;font-family:'DM Sans',sans-serif;}
+.sb.on{background:rgba(212,135,74,0.2);border-color:rgba(212,135,74,0.55);color:#e8a066;}
+.sb:hover:not(.on){background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);}
+.wrap{display:flex;gap:24px;align-items:flex-start;justify-content:center;flex-wrap:wrap;}
+
+/* phone */
+.phone{width:295px;flex-shrink:0;background:#080706;border-radius:44px;padding:11px;box-shadow:0 0 0 1px rgba(255,255,255,0.06),0 40px 80px rgba(0,0,0,0.7);}
+.phone-inner{width:100%;height:610px;background:var(--dark);border-radius:34px;overflow:hidden;position:relative;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:88px;height:26px;background:#080706;border-radius:0 0 14px 14px;z-index:20;}
+.sc{position:absolute;inset:0;display:none;flex-direction:column;background:var(--dark);}
+.sc.on{display:flex;}
+
+/* shared */
+.sb-top{padding:36px 18px 12px;background:var(--dark);flex-shrink:0;}
+.sb-body{flex:1;overflow-y:auto;padding:12px 18px 20px;background:var(--dark);}
+.sb-body::-webkit-scrollbar{display:none;}
+.nb{display:flex;background:var(--dark2);padding:10px 0 8px;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-size:9px;color:var(--off);font-weight:500;}
+.ni.a{color:var(--amber);}
+.back-b{width:28px;height:28px;background:rgba(255,255,255,0.07);border:none;border-radius:8px;cursor:pointer;color:rgba(255,255,255,0.7);font-size:14px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;}
+.inp-d{width:100%;padding:11px 13px;background:var(--surface);border:1px solid rgba(255,255,255,0.08);border-radius:10px;font-size:13px;font-family:'DM Sans',sans-serif;margin-bottom:10px;box-sizing:border-box;outline:none;color:#fff;}
+.inp-d::placeholder{color:var(--off);}
+.inp-d:focus{border-color:var(--amber);}
+.lbl-d{font-size:11px;font-weight:600;color:var(--off);margin-bottom:4px;letter-spacing:0.04em;display:block;}
+.btn-amber{width:100%;padding:13px;background:var(--amber);color:#fff;border:none;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s;letter-spacing:0.01em;}
+.btn-amber:hover{background:var(--amber-dark);}
+.btn-ghost{width:100%;padding:13px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.12);border-radius:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px;}
+.sec-h{font-size:12px;font-weight:700;color:#fff;margin-bottom:10px;}
+
+/* splash */
+.splash-bg{flex:1;background:linear-gradient(180deg,#1c1510 0%,#0e0c0a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:2rem;position:relative;}
+.splash-logo-txt{font-family:'Syne',sans-serif;font-weight:800;font-size:2.8rem;color:#fff;letter-spacing:-0.03em;line-height:0.95;}
+.splash-logo-txt span{color:var(--amber);}
+
+/* home */
+.live-card{background:linear-gradient(135deg,#2a1f14,#3d2a18);border-radius:14px;padding:16px;margin-bottom:14px;border:1px solid rgba(212,135,74,0.2);position:relative;overflow:hidden;cursor:pointer;}
+.live-badge{background:var(--pink);color:#fff;font-size:9px;font-weight:700;letter-spacing:0.1em;padding:3px 8px;border-radius:10px;display:inline-flex;align-items:center;gap:4px;margin-bottom:8px;}
+.live-dot{width:5px;height:5px;border-radius:50%;background:#fff;animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.topic-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.topic-card{border-radius:11px;overflow:hidden;position:relative;height:72px;cursor:pointer;transition:transform 0.2s;}
+.topic-card:hover{transform:scale(1.03);}
+.topic-card-bg{width:100%;height:100%;background:var(--surface2);display:flex;align-items:flex-end;padding:6px 8px;}
+.topic-label{font-size:10px;font-weight:700;color:#fff;}
+.sub-tab{display:flex;gap:10px;margin-bottom:12px;}
+.tab-pill{padding:5px 12px;border-radius:20px;font-size:10px;font-weight:600;cursor:pointer;}
+.tab-pill.a{background:var(--amber);color:#fff;}
+.tab-pill.i{background:rgba(255,255,255,0.06);color:var(--off);}
+.pod-row{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:12px;padding:10px 12px;margin-bottom:7px;cursor:pointer;transition:background 0.15s;}
+.pod-row:hover{background:var(--surface2);}
+.pod-img{width:46px;height:46px;border-radius:9px;background:var(--surface2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.pod-info{flex:1;}
+.pod-title{font-size:12px;font-weight:600;color:#fff;line-height:1.3;}
+.pod-meta{font-size:10px;color:var(--off);margin-top:2px;}
+
+/* category/channel page */
+.ch-hero{height:160px;background:linear-gradient(180deg,rgba(50,35,20,0.4) 0%,var(--dark) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:16px;flex-shrink:0;position:relative;overflow:hidden;}
+.ch-blur{position:absolute;inset:0;background:linear-gradient(135deg,#2a1f14,#1c150e);opacity:0.9;}
+.ch-follow{display:inline-flex;align-items:center;gap:6px;background:var(--amber);color:#fff;border:none;border-radius:20px;padding:7px 16px;font-size:11px;font-weight:700;cursor:pointer;margin-top:8px;font-family:'DM Sans',sans-serif;}
+.ep-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;}
+.ep-row:last-child{border-bottom:none;}
+.ep-num{width:28px;height:28px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--amber);flex-shrink:0;}
+.ep-play{width:28px;height:28px;border-radius:50%;background:var(--amber);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;flex-shrink:0;cursor:pointer;}
+
+/* now playing */
+.player-hero{height:220px;background:var(--surface);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative;overflow:hidden;}
+.player-grad{position:absolute;inset:0;background:linear-gradient(135deg,#2a1f14,#1c150e);}
+.player-face{width:80px;height:80px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:2rem;position:relative;z-index:1;}
+.progress-bar{background:rgba(255,255,255,0.12);border-radius:3px;height:4px;margin:0 0 6px;}
+.progress-fill{background:var(--amber);border-radius:3px;height:4px;width:37%;}
+.ctrl-row{display:flex;align-items:center;justify-content:space-around;margin-top:10px;}
+.ctrl-btn{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.6);font-size:18px;}
+.play-btn{width:48px;height:48px;background:var(--amber);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#fff;}
+.next-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;}
+
+/* search */
+.search-wrap{display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:10px;padding:9px 13px;margin-bottom:14px;border:1px solid rgba(255,255,255,0.08);}
+.search-wrap input{border:none;outline:none;background:transparent;flex:1;font-size:12px;color:#fff;font-family:'DM Sans',sans-serif;}
+.search-wrap input::placeholder{color:var(--off);}
+.cat-chip{display:inline-flex;align-items:center;padding:6px 14px;background:var(--surface);border:1px solid rgba(255,255,255,0.08);border-radius:20px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.6);cursor:pointer;margin:0 5px 7px 0;transition:all 0.2s;}
+.cat-chip.a{background:rgba(212,135,74,0.2);border-color:rgba(212,135,74,0.5);color:var(--amber2);}
+
+/* my list */
+.list-card{background:var(--surface);border-radius:12px;overflow:hidden;width:80px;flex-shrink:0;cursor:pointer;margin-right:8px;}
+.list-img{width:80px;height:80px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;}
+.list-name{font-size:9px;font-weight:600;color:rgba(255,255,255,0.7);padding:5px 6px;line-height:1.2;}
+
+/* notes panel */
+.notes{width:260px;flex-shrink:0;}
+.nc{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:14px;margin-bottom:10px;}
+.nl{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber2);margin-bottom:7px;}
+.nt{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;}
+.fl{display:flex;gap:7px;margin-bottom:6px;align-items:flex-start;}
+.fn{width:18px;height:18px;border-radius:50%;background:rgba(212,135,74,0.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--amber2);flex-shrink:0;margin-top:1px;}
+.ft{font-size:12px;color:rgba(255,255,255,0.45);line-height:1.45;}
+.stat-r{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:11px;}
+.stat-r:last-child{border-bottom:none;}
+@media(max-width:700px){.notes{display:none;}.wrap{gap:0;}}
+</style>
+</head>
+<body>
+
+<div class="proto-header">
+  <div class="proto-logo">Pod <span>Noir</span>.</div>
+  <div class="proto-badge">Interactive Prototype · UI/UX Case Study</div>
+</div>
+
+<div class="stage-row">
+  <button class="sb on"  onclick="go('splash',0)">① Splash</button>
+  <button class="sb"     onclick="go('onboard',1)">② Onboard</button>
+  <button class="sb"     onclick="go('login',2)">③ Login</button>
+  <button class="sb"     onclick="go('home',3)">④ Home</button>
+  <button class="sb"     onclick="go('search',4)">⑤ Search</button>
+  <button class="sb"     onclick="go('channel',5)">⑥ Channel</button>
+  <button class="sb"     onclick="go('player',6)">⑦ Player</button>
+  <button class="sb"     onclick="go('mylist',7)">⑧ My List</button>
+  <button class="sb"     onclick="go('profile',8)">⑨ Profile</button>
+</div>
+
+<div class="wrap">
+  <div class="phone">
+    <div class="phone-inner">
+      <div class="notch"></div>
+
+      <!-- ① SPLASH -->
+      <div class="sc on" id="sc-splash">
+        <div class="splash-bg">
+          <div style="font-size:3rem;margin-bottom:4px;">🎙️</div>
+          <div class="splash-logo-txt">Pod<br/><span>Noir</span>.</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:0.14em;text-transform:uppercase;">A Space to Be Heard &amp; Shared</div>
+          <div style="position:absolute;bottom:44px;left:20px;right:20px;">
+            <button class="btn-amber" onclick="go('onboard',1)">Get Started</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② ONBOARD -->
+      <div class="sc" id="sc-onboard">
+        <div class="splash-bg" style="gap:10px;">
+          <div style="font-size:2rem;margin-bottom:4px;">✊🏿</div>
+          <div style="font-size:16px;font-weight:700;color:#fff;text-align:center;line-height:1.3;">Empowering Black<br/>Women's Voices</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);text-align:center;line-height:1.6;max-width:210px;">Discover podcasts made by and for Black women — stories, insights, community.</div>
+          <div style="display:flex;gap:6px;margin-top:6px;">
+            <div style="width:22px;height:4px;border-radius:2px;background:var(--amber);"></div>
+            <div style="width:6px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);"></div>
+            <div style="width:6px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);"></div>
+          </div>
+          <div style="position:absolute;bottom:44px;left:20px;right:20px;">
+            <button class="btn-amber" onclick="go('login',2)">Create Account</button>
+            <button class="btn-ghost" onclick="go('login',2)">I already have an account</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ③ LOGIN -->
+      <div class="sc" id="sc-login">
+        <div class="sb-top">
+          <div style="font-size:17px;font-weight:700;color:#fff;margin-top:8px;">Welcome back</div>
+          <div style="font-size:11px;color:var(--off);margin-top:2px;">Sign in to Pod Noir</div>
+        </div>
+        <div class="sb-body" style="padding-top:18px;">
+          <span class="lbl-d">Email Address</span>
+          <input class="inp-d" type="email" value="maya@email.com"/>
+          <span class="lbl-d">Password</span>
+          <input class="inp-d" type="password" value="••••••••"/>
+          <div style="text-align:right;margin-bottom:18px;"><span style="font-size:11px;color:var(--amber);font-weight:600;cursor:pointer;">Forgot password?</span></div>
+          <button class="btn-amber" onclick="go('home',3)">Sign In</button>
+          <div style="text-align:center;margin-top:14px;font-size:11px;color:var(--off);">New to Pod Noir? <span style="color:var(--amber);font-weight:600;cursor:pointer;" onclick="go('onboard',1)">Join Now</span></div>
+        </div>
+      </div>
+
+      <!-- ④ HOME -->
+      <div class="sc" id="sc-home">
+        <div class="sb-top" style="padding-top:36px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div style="font-size:22px;cursor:pointer;">☰</div>
+            <div style="width:28px;height:28px;background:var(--amber);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;cursor:pointer;" onclick="go('profile',8)">MJ</div>
+          </div>
+        </div>
+        <div class="sb-body" style="padding-top:0;">
+          <!-- Live card -->
+          <div class="live-card" onclick="go('player',6)">
+            <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+            <div style="font-size:13px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:4px;">Connect with Black women in corporate.</div>
+            <div style="font-size:10px;color:var(--off);">Started 5 mins ago · Featuring <span style="color:var(--amber2);">Dr. JK Williamson</span></div>
+            <div style="position:absolute;right:14px;top:50%;transform:translateY(-50%);width:36px;height:36px;background:var(--amber);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;">▶</div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div class="sec-h" style="margin-bottom:0;">Explore Topics</div>
+          </div>
+          <div class="topic-grid" style="margin-bottom:14px;">
+            <div class="topic-card" onclick="go('channel',5)"><div class="topic-card-bg" style="background:linear-gradient(160deg,#2a1f14,#4a2e1a);"><div class="topic-label">Psychology</div></div></div>
+            <div class="topic-card" onclick="go('channel',5)"><div class="topic-card-bg" style="background:linear-gradient(160deg,#1a1f2a,#1a2a3a);"><div class="topic-label">Designing</div></div></div>
+            <div class="topic-card" onclick="go('channel',5)"><div class="topic-card-bg" style="background:linear-gradient(160deg,#1a2a1a,#2a3a2a);"><div class="topic-label">Technology</div></div></div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div class="sec-h" style="margin-bottom:0;">Subscribed</div>
+            <div class="sub-tab"><div class="tab-pill a">Recent</div><div class="tab-pill i">Popular</div></div>
+          </div>
+          <div class="pod-row" onclick="go('channel',5)">
+            <div class="pod-img" style="background:linear-gradient(135deg,#2a1f14,#4a3020);">🎤</div>
+            <div class="pod-info">
+              <div class="pod-title">Explore Black women's experiences</div>
+              <div class="pod-meta">12 Topics · 3.8k followers</div>
+            </div>
+          </div>
+          <div class="pod-row" onclick="go('channel',5)">
+            <div class="pod-img" style="background:linear-gradient(135deg,#14201a,#203a2a);">🌙</div>
+            <div class="pod-info">
+              <div class="pod-title">Upcoming Webinars</div>
+              <div class="pod-meta">17 Topics · 5.9k followers</div>
+            </div>
+          </div>
+          <div class="pod-row" onclick="go('channel',5)">
+            <div class="pod-img" style="background:linear-gradient(135deg,#20141a,#3a1a2a);">✊🏿</div>
+            <div class="pod-info">
+              <div class="pod-title">Black Excellence in STEM</div>
+              <div class="pod-meta">8 Topics · 2.1k followers</div>
+            </div>
+          </div>
+        </div>
+        <div class="nb">
+          <div class="ni a" onclick="go('home',3)"><span style="font-size:15px;">🏠</span>Home</div>
+          <div class="ni" onclick="go('search',4)"><span style="font-size:15px;">🔍</span>Search</div>
+          <div class="ni" onclick="go('mylist',7)"><span style="font-size:15px;">📚</span>My List</div>
+          <div class="ni" onclick="go('profile',8)"><span style="font-size:15px;">👤</span>Profile</div>
+        </div>
+      </div>
+
+      <!-- ⑤ SEARCH -->
+      <div class="sc" id="sc-search">
+        <div class="sb-top" style="padding-top:38px;">
+          <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:12px;">Discover</div>
+          <div class="search-wrap">
+            <span style="color:var(--off);font-size:14px;">🔍</span>
+            <input placeholder="Search podcasts, topics, hosts…"/>
+          </div>
+        </div>
+        <div class="sb-body">
+          <div class="sec-h">Browse Topics</div>
+          <div style="display:flex;flex-wrap:wrap;margin-bottom:14px;">
+            <div class="cat-chip a">All</div>
+            <div class="cat-chip" onclick="go('channel',5)">Psychology</div>
+            <div class="cat-chip" onclick="go('channel',5)">Technology</div>
+            <div class="cat-chip" onclick="go('channel',5)">Wellness</div>
+            <div class="cat-chip" onclick="go('channel',5)">Finance</div>
+            <div class="cat-chip" onclick="go('channel',5)">Culture</div>
+            <div class="cat-chip" onclick="go('channel',5)">Design</div>
+            <div class="cat-chip" onclick="go('channel',5)">Business</div>
+          </div>
+          <div class="sec-h">Trending Now</div>
+          <div class="pod-row" onclick="go('player',6)">
+            <div class="pod-img" style="font-size:22px;">🔥</div>
+            <div class="pod-info">
+              <div class="pod-title">These Demons</div>
+              <div class="pod-meta">By Side B · 04:30</div>
+            </div>
+            <div style="width:28px;height:28px;background:var(--amber);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;">▶</div>
+          </div>
+          <div class="pod-row" onclick="go('player',6)">
+            <div class="pod-img" style="font-size:22px;">🌸</div>
+            <div class="pod-info">
+              <div class="pod-title">Afterglow</div>
+              <div class="pod-meta">By Ed Sheeran · 03:48</div>
+            </div>
+            <div style="width:28px;height:28px;background:var(--surface2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;">▶</div>
+          </div>
+          <div class="pod-row" onclick="go('channel',5)">
+            <div class="pod-img" style="font-size:22px;">💼</div>
+            <div class="pod-info">
+              <div class="pod-title">Black Women in Corporate</div>
+              <div class="pod-meta">Live Streaming · Dr. JK Williamson</div>
+            </div>
+            <div style="background:var(--pink);color:#fff;font-size:8px;font-weight:700;padding:3px 7px;border-radius:9px;">LIVE</div>
+          </div>
+          <div class="pod-row" onclick="go('player',6)">
+            <div class="pod-img" style="font-size:22px;">🎓</div>
+            <div class="pod-info">
+              <div class="pod-title">Life After Graduation</div>
+              <div class="pod-meta">ExploreBlack Women's Exp. · 04:30</div>
+            </div>
+            <div style="width:28px;height:28px;background:var(--surface2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;">▶</div>
+          </div>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',3)"><span style="font-size:15px;">🏠</span>Home</div>
+          <div class="ni a"><span style="font-size:15px;">🔍</span>Search</div>
+          <div class="ni" onclick="go('mylist',7)"><span style="font-size:15px;">📚</span>My List</div>
+          <div class="ni" onclick="go('profile',8)"><span style="font-size:15px;">👤</span>Profile</div>
+        </div>
+      </div>
+
+      <!-- ⑥ CHANNEL PAGE -->
+      <div class="sc" id="sc-channel">
+        <div class="ch-hero">
+          <div class="ch-blur"></div>
+          <button class="back-b" onclick="go('home',3)" style="position:relative;z-index:1;margin-bottom:auto;">←</button>
+          <div style="position:relative;z-index:1;">
+            <div style="font-size:16px;font-weight:700;color:#fff;line-height:1.2;">Explore Black women's<br/>Experiences</div>
+            <div style="font-size:10px;color:var(--off);margin-top:4px;">12 Topics · 3.8k followers</div>
+            <button class="ch-follow" onclick="this.textContent='✓ Following';this.style.background='rgba(212,135,74,0.2)';this.style.border='1px solid rgba(212,135,74,0.4)';">+ Follow</button>
+          </div>
+        </div>
+        <div class="sb-body">
+          <div class="sec-h">Episodes</div>
+          <div class="ep-row" onclick="go('player',6)">
+            <div class="ep-num">1</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:#fff;">I can't come and kill myself</div><div style="font-size:10px;color:var(--off);">ExploreBlack Women's Exp. · 02:01</div></div>
+            <div class="ep-play">▶</div>
+          </div>
+          <div class="ep-row" onclick="go('player',6)">
+            <div class="ep-num">2</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:#fff;">Life after graduation</div><div style="font-size:10px;color:var(--off);">04:30 mins</div></div>
+            <div class="ep-play" style="background:var(--surface2);">▶</div>
+          </div>
+          <div class="ep-row" onclick="go('player',6)">
+            <div class="ep-num">3</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:#fff;">Finding Peace</div><div style="font-size:10px;color:var(--off);">05:20 mins</div></div>
+            <div class="ep-play" style="background:var(--surface2);">▶</div>
+          </div>
+          <div class="ep-row" onclick="go('player',6)">
+            <div class="ep-num">4</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:#fff;">Black Girls Don't Cry</div><div style="font-size:10px;color:var(--off);">06:15 mins</div></div>
+            <div class="ep-play" style="background:var(--surface2);">▶</div>
+          </div>
+          <div class="ep-row" onclick="go('player',6)">
+            <div class="ep-num">5</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:#fff;">Navigating Corporate as a Black Woman</div><div style="font-size:10px;color:var(--off);">08:42 mins</div></div>
+            <div class="ep-play" style="background:var(--surface2);">▶</div>
+          </div>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',3)"><span style="font-size:15px;">🏠</span>Home</div>
+          <div class="ni" onclick="go('search',4)"><span style="font-size:15px;">🔍</span>Search</div>
+          <div class="ni" onclick="go('mylist',7)"><span style="font-size:15px;">📚</span>My List</div>
+          <div class="ni" onclick="go('profile',8)"><span style="font-size:15px;">👤</span>Profile</div>
+        </div>
+      </div>
+
+      <!-- ⑦ NOW PLAYING -->
+      <div class="sc" id="sc-player">
+        <div class="player-hero">
+          <div class="player-grad"></div>
+          <div class="player-face">🎤</div>
+          <button class="back-b" onclick="go('channel',5)" style="position:absolute;top:40px;left:14px;z-index:2;">←</button>
+          <div style="position:absolute;top:40px;right:14px;z-index:2;color:rgba(255,255,255,0.5);font-size:16px;cursor:pointer;">♡</div>
+        </div>
+        <div class="sb-body">
+          <div style="margin-bottom:14px;">
+            <div style="font-size:10px;color:var(--amber);font-weight:600;letter-spacing:0.06em;margin-bottom:4px;">ExploreBlack Women's Exp.</div>
+            <div style="font-size:16px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:2px;">I can't come and kill myself</div>
+            <div style="font-size:10px;color:var(--off);">Season 1 · Episode 1 · 02:01</div>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--off);margin-bottom:10px;"><span id="curTime">00:47</span><span>02:01</span></div>
+          <div class="ctrl-row">
+            <button class="ctrl-btn">⏮</button>
+            <button class="ctrl-btn">⏪</button>
+            <button class="play-btn" id="playBtn" onclick="togglePlay()">⏸</button>
+            <button class="ctrl-btn">⏩</button>
+            <button class="ctrl-btn">🔁</button>
+          </div>
+          <div style="margin-top:14px;">
+            <div class="sec-h">Playing Next</div>
+            <div class="next-row" onclick="go('player',6)">
+              <div style="font-size:11px;font-weight:600;color:var(--off);width:14px;">2.</div>
+              <div class="pod-img" style="width:38px;height:38px;font-size:16px;border-radius:8px;">🎓</div>
+              <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:#fff;">Life after graduation</div><div style="font-size:10px;color:var(--off);">04:30 mins</div></div>
+            </div>
+            <div class="next-row" onclick="go('player',6)">
+              <div style="font-size:11px;font-weight:600;color:var(--off);width:14px;">3.</div>
+              <div class="pod-img" style="width:38px;height:38px;font-size:16px;border-radius:8px;">🕊️</div>
+              <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:#fff;">Finding Peace</div><div style="font-size:10px;color:var(--off);">05:20 mins</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⑧ MY LIST -->
+      <div class="sc" id="sc-mylist">
+        <div class="sb-top" style="padding-top:38px;">
+          <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:4px;">My List</div>
+          <div style="font-size:11px;color:var(--off);">Stream your daily podcasts</div>
+        </div>
+        <div class="sb-body">
+          <div class="search-wrap" style="margin-bottom:14px;">
+            <span style="color:var(--off);font-size:14px;">🔍</span>
+            <input placeholder="Search"/>
+            <span style="color:var(--off);font-size:14px;">🎤</span>
+          </div>
+          <div class="sec-h">My Lists</div>
+          <div style="display:flex;overflow-x:auto;margin-bottom:16px;padding-bottom:4px;">
+            <div class="list-card" onclick="go('channel',5)"><div class="list-img">🎤</div><div class="list-name">Explore Black Women's</div></div>
+            <div class="list-card" onclick="go('channel',5)"><div class="list-img" style="background:linear-gradient(135deg,#1a1f2a,#2a3040);">🌙</div><div class="list-name">Night Sessions</div></div>
+            <div class="list-card" onclick="go('channel',5)"><div class="list-img" style="background:linear-gradient(135deg,#1a2a1a,#2a4030);">✊🏿</div><div class="list-name">Black Excellence</div></div>
+            <div class="list-card" onclick="go('channel',5)"><div class="list-img" style="background:linear-gradient(135deg,#2a1a1f,#4a2030);">💫</div><div class="list-name">Wellness Daily</div></div>
+          </div>
+          <div class="sec-h">Trending</div>
+          <div class="pod-row" onclick="go('player',6)">
+            <div class="pod-img" style="font-size:22px;">🔥</div>
+            <div class="pod-info"><div class="pod-title">These Demons</div><div class="pod-meta">By Side B · 04:30</div></div>
+            <div style="width:28px;height:28px;background:var(--amber);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;">▶</div>
+          </div>
+          <div class="pod-row" onclick="go('player',6)">
+            <div class="pod-img" style="font-size:22px;">🌸</div>
+            <div class="pod-info"><div class="pod-title">Afterglow</div><div class="pod-meta">By Ed Sheeran · 03:48</div></div>
+            <div style="width:28px;height:28px;background:var(--surface2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;">▶</div>
+          </div>
+          <div class="pod-row" onclick="go('player',6)">
+            <div class="pod-img" style="font-size:22px;">💼</div>
+            <div class="pod-info"><div class="pod-title">Black Women in Finance</div><div class="pod-meta">By Zora Collective · 06:12</div></div>
+            <div style="width:28px;height:28px;background:var(--surface2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;">▶</div>
+          </div>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',3)"><span style="font-size:15px;">🏠</span>Home</div>
+          <div class="ni" onclick="go('search',4)"><span style="font-size:15px;">🔍</span>Search</div>
+          <div class="ni a"><span style="font-size:15px;">📚</span>My List</div>
+          <div class="ni" onclick="go('profile',8)"><span style="font-size:15px;">👤</span>Profile</div>
+        </div>
+      </div>
+
+      <!-- ⑨ PROFILE -->
+      <div class="sc" id="sc-profile">
+        <div class="sb-top" style="padding-top:38px;">
+          <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:14px;">Profile</div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:52px;height:52px;background:var(--amber);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;">MJ</div>
+            <div><div style="font-size:14px;font-weight:700;color:#fff;">Maya Johnson</div><div style="font-size:11px;color:var(--off);">maya@email.com</div><div style="font-size:10px;color:var(--amber);margin-top:2px;">Marketing Professional</div></div>
+          </div>
+        </div>
+        <div class="sb-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;">
+            <div style="background:var(--surface);border-radius:10px;padding:10px;text-align:center;"><div style="font-size:14px;font-weight:700;color:#fff;">24</div><div style="font-size:9px;color:var(--off);font-weight:600;margin-top:2px;">Subscribed</div></div>
+            <div style="background:var(--surface);border-radius:10px;padding:10px;text-align:center;"><div style="font-size:14px;font-weight:700;color:#fff;">147</div><div style="font-size:9px;color:var(--off);font-weight:600;margin-top:2px;">Episodes</div></div>
+            <div style="background:var(--surface);border-radius:10px;padding:10px;text-align:center;"><div style="font-size:14px;font-weight:700;color:var(--amber);">83%</div><div style="font-size:9px;color:var(--off);font-weight:600;margin-top:2px;">Dark Mode</div></div>
+          </div>
+          <div class="sec-h">Settings</div>
+          <div style="display:flex;flex-direction:column;gap:0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;"><span style="font-size:13px;color:rgba(255,255,255,0.7);">🌙  Dark Mode</span><div style="width:32px;height:18px;background:var(--amber);border-radius:10px;position:relative;"><div style="position:absolute;right:2px;top:2px;width:14px;height:14px;background:#fff;border-radius:50%;"></div></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;"><span style="font-size:13px;color:rgba(255,255,255,0.7);">🔔  Notifications</span><span style="font-size:10px;color:var(--off);">On ›</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;"><span style="font-size:13px;color:rgba(255,255,255,0.7);">📥  Downloads</span><span style="font-size:10px;color:var(--off);">3 saved ›</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;"><span style="font-size:13px;color:rgba(255,255,255,0.7);">🔒  Privacy</span><span style="font-size:10px;color:var(--off);">›</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;cursor:pointer;"><span style="font-size:13px;color:var(--pink);">Sign Out</span></div>
+          </div>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',3)"><span style="font-size:15px;">🏠</span>Home</div>
+          <div class="ni" onclick="go('search',4)"><span style="font-size:15px;">🔍</span>Search</div>
+          <div class="ni" onclick="go('mylist',7)"><span style="font-size:15px;">📚</span>My List</div>
+          <div class="ni a"><span style="font-size:15px;">👤</span>Profile</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SIDE NOTES -->
+  <div class="notes">
+    <div class="nc">
+      <div class="nl">About Pod Noir</div>
+      <div class="nt">A Black women's podcast app designed to empower and uplift Black women's voices. A dedicated space addressing the underrepresentation of Black women podcasters on mainstream platforms.</div>
+    </div>
+    <div class="nc">
+      <div class="nl">User Research</div>
+      <div class="stat-r"><span style="color:rgba(255,255,255,0.4);">Dark mode preference</span><span style="color:var(--amber2);font-weight:600;">83.3%</span></div>
+      <div class="stat-r"><span style="color:rgba(255,255,255,0.4);">Listen daily</span><span style="color:var(--amber2);font-weight:600;">78.2%</span></div>
+      <div class="stat-r"><span style="color:rgba(255,255,255,0.4);">Want community</span><span style="color:var(--amber2);font-weight:600;">87.5%</span></div>
+      <div class="stat-r"><span style="color:rgba(255,255,255,0.4);">Female respondents</span><span style="color:var(--amber2);font-weight:600;">80%</span></div>
+      <div class="stat-r"><span style="color:rgba(255,255,255,0.4);">Age 18–32</span><span style="color:var(--amber2);font-weight:600;">100%</span></div>
+    </div>
+    <div class="nc">
+      <div class="nl">Design Flow</div>
+      <div class="fl"><div class="fn">1</div><div class="ft">Splash → Onboarding → Login</div></div>
+      <div class="fl"><div class="fn">2</div><div class="ft">Home — Live stream, topics, subscriptions</div></div>
+      <div class="fl"><div class="fn">3</div><div class="ft">Search — Browse by topic/category</div></div>
+      <div class="fl"><div class="fn">4</div><div class="ft">Channel — Follow, episode list</div></div>
+      <div class="fl"><div class="fn">5</div><div class="ft">Now Playing — playback controls, queue</div></div>
+      <div class="fl"><div class="fn">6</div><div class="ft">My List + Profile settings</div></div>
+    </div>
+    <div class="nc">
+      <div class="nl">Design System</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;border-radius:3px;background:#12100e;border:1px solid rgba(255,255,255,0.15);"></div><div style="font-size:11px;color:rgba(255,255,255,0.45);">Background #12100E</div></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;border-radius:3px;background:#d4874a;"></div><div style="font-size:11px;color:rgba(255,255,255,0.45);">Amber #D4874A</div></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;border-radius:3px;background:#2a2520;"></div><div style="font-size:11px;color:rgba(255,255,255,0.45);">Surface #2A2520</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var playing=true;
+var prog=37;
+var timer;
+function go(id,idx){
+  document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));
+  var el=document.getElementById('sc-'+id);
+  if(el)el.classList.add('on');
+  document.querySelectorAll('.sb').forEach((b,i)=>b.classList.toggle('on',i===idx));
+  if(id==='player'){startPlayer();}else{stopPlayer();}
+}
+function togglePlay(){
+  playing=!playing;
+  document.getElementById('playBtn').textContent=playing?'⏸':'▶';
+  if(playing)startPlayer();else stopPlayer();
+}
+function startPlayer(){
+  stopPlayer();
+  playing=true;
+  document.getElementById('playBtn').textContent='⏸';
+  timer=setInterval(function(){
+    prog=Math.min(prog+0.5,100);
+    var pf=document.getElementById('progFill');
+    if(pf)pf.style.width=prog+'%';
+    var sec=Math.round(prog/100*121);
+    var m=Math.floor(sec/60);
+    var s=sec%60;
+    var ct=document.getElementById('curTime');
+    if(ct)ct.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+    if(prog>=100){prog=0;clearInterval(timer);}
+  },200);
+}
+function stopPlayer(){clearInterval(timer);}
+</script>
+</body>
+</html>

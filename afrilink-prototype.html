@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Afrilink — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --teal:#1b9e8c;
+  --teal2:#14b8a6;
+  --teal-dark:#0d6b5e;
+  --teal-bg:#e6f7f5;
+  --bg-screen:#f0faf9;
+  --surface:#ffffff;
+  --ink:#0b1f1d;
+  --muted:#6b8f8b;
+  --border:rgba(27,158,140,0.15);
+  --red:#ef4444;
+  --green:#22c55e;
+  --amber:#f59e0b;
+}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:linear-gradient(135deg,#062e28 0%,#0d5c50 50%,#062e28 100%);
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:2rem 1rem 4rem;
+}
+.proto-header{width:100%;max-width:960px;display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;padding:0 0.5rem;}
+.proto-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;color:#fff;}
+.proto-logo span{color:#1b9e8c;}
+.proto-badge{font-size:0.68rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.07);padding:0.4rem 0.9rem;border-radius:20px;border:1px solid rgba(255,255,255,0.1);}
+.stage-row{width:100%;max-width:960px;display:flex;gap:5px;margin-bottom:1.5rem;flex-wrap:wrap;}
+.sb{flex:1;min-width:80px;padding:5px 8px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);border-radius:7px;font-size:0.68rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:rgba(255,255,255,0.4);cursor:pointer;transition:all 0.2s;text-align:center;font-family:'DM Sans',sans-serif;}
+.sb.on{background:rgba(27,158,140,0.25);border-color:rgba(27,158,140,0.6);color:#5dddd0;}
+.sb:hover:not(.on){background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);}
+.wrap{display:flex;gap:24px;align-items:flex-start;justify-content:center;flex-wrap:wrap;}
+.phone{width:300px;flex-shrink:0;background:#0a0f0e;border-radius:42px;padding:12px;box-shadow:0 0 0 1px rgba(255,255,255,0.07),0 40px 80px rgba(0,0,0,0.6);}
+.phone-inner{width:100%;height:620px;background:var(--bg-screen);border-radius:32px;overflow:hidden;position:relative;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:95px;height:28px;background:#0a0f0e;border-radius:0 0 16px 16px;z-index:20;}
+.sc{position:absolute;inset:0;display:none;flex-direction:column;}
+.sc.on{display:flex;}
+
+/* shared */
+.top{padding:40px 18px 14px;background:var(--bg-screen);flex-shrink:0;}
+.body{flex:1;overflow-y:auto;padding:14px 18px 20px;background:var(--bg-screen);}
+.body::-webkit-scrollbar{display:none;}
+.nb{display:flex;background:#fff;padding:8px 0 4px;border-top:1px solid var(--border);flex-shrink:0;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-size:9px;color:#aaa;font-weight:500;}
+.ni.a{color:var(--teal);}
+.back{width:30px;height:30px;background:rgba(27,158,140,0.1);border:none;border-radius:8px;cursor:pointer;color:var(--teal);font-size:15px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;}
+.inp{width:100%;padding:11px 13px;background:#fff;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:'DM Sans',sans-serif;margin-bottom:11px;box-sizing:border-box;outline:none;}
+.inp:focus{border-color:var(--teal2);}
+.lbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;letter-spacing:0.04em;display:block;}
+.btn-p{width:100%;padding:13px;background:var(--teal);color:#fff;border:none;border-radius:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s;}
+.btn-p:hover{background:var(--teal-dark);}
+.btn-g{width:100%;padding:13px;background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px;}
+.card{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;border:1px solid var(--border);}
+.s-h{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:10px;}
+
+/* splash */
+.splash-bg{flex:1;background:linear-gradient(160deg,#0d5c50 0%,#062e28 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:2rem;}
+.splash-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:2.8rem;color:#fff;letter-spacing:-0.03em;}
+.splash-logo span{color:var(--teal2);}
+
+/* home */
+.bal-card{background:linear-gradient(135deg,var(--teal-dark),var(--teal));border-radius:16px;padding:20px;margin-bottom:14px;}
+.quick-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.qa{background:#fff;border-radius:11px;padding:10px 6px;text-align:center;cursor:pointer;border:1px solid var(--border);transition:all 0.2s;}
+.qa:hover{background:var(--teal-bg);}
+.qa-icon{font-size:16px;margin-bottom:3px;}
+.qa-label{font-size:9px;font-weight:600;color:var(--teal);letter-spacing:0.03em;}
+.refer-banner{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #bbf7d0;border-radius:13px;padding:13px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.recent-list{display:flex;flex-direction:column;gap:7px;}
+.tx-row{display:flex;align-items:center;gap:10px;background:#fff;border-radius:11px;padding:10px 12px;border:1px solid var(--border);cursor:pointer;}
+.tx-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;}
+.services-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.svc{background:#fff;border-radius:11px;padding:10px 6px;text-align:center;cursor:pointer;border:1px solid var(--border);transition:all 0.2s;}
+.svc:hover{background:var(--teal-bg);}
+.svc-icon{font-size:18px;margin-bottom:3px;}
+.svc-label{font-size:9px;font-weight:600;color:var(--teal);}
+
+/* send money */
+.contact-pill{display:flex;align-items:center;gap:8px;background:#fff;border-radius:11px;padding:10px 12px;margin-bottom:8px;border:1px solid var(--border);cursor:pointer;transition:all 0.2s;}
+.contact-pill:hover{border-color:var(--teal2);}
+.c-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;}
+.amt-wrap{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid var(--border);text-align:center;}
+.currency-big{font-size:2.2rem;font-weight:700;color:var(--ink);}
+.rate-pill{background:var(--teal-bg);color:var(--teal-dark);font-size:11px;font-weight:600;border-radius:20px;padding:4px 10px;display:inline-block;margin-top:6px;}
+
+/* converter */
+.conv-card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid var(--border);}
+.flag-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.flag-item{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.flag{font-size:24px;}
+.flag-code{font-size:11px;font-weight:700;color:var(--ink);}
+.conv-arrow{font-size:18px;color:var(--teal);}
+.conv-result{background:var(--teal-bg);border-radius:10px;padding:12px;text-align:center;margin-top:10px;}
+
+/* transactions */
+.tx-detail{background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;}
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;}
+.status-done{background:#dcfce7;color:#166534;}
+.status-pend{background:#fef9c3;color:#854d0e;}
+
+/* add money */
+.method-card{background:#fff;border-radius:13px;padding:14px;margin-bottom:8px;border:1.5px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:12px;transition:all 0.2s;}
+.method-card:hover,.method-card.sel{border-color:var(--teal2);background:var(--teal-bg);}
+.method-icon{width:40px;height:40px;border-radius:10px;background:var(--teal-bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+
+/* success */
+.success-sc{flex:1;background:linear-gradient(160deg,#0d5c50,#062e28);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:2rem;}
+.success-ring{width:80px;height:80px;border-radius:50%;background:rgba(34,197,94,0.2);border:2px solid rgba(34,197,94,0.4);display:flex;align-items:center;justify-content:center;font-size:2.5rem;}
+
+/* notes panel */
+.notes{width:260px;flex-shrink:0;}
+.nc{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:13px;padding:14px;margin-bottom:10px;}
+.nl{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#5dddd0;margin-bottom:7px;}
+.nt{font-size:12px;color:rgba(255,255,255,0.55);line-height:1.6;}
+.fl{display:flex;gap:7px;margin-bottom:6px;align-items:flex-start;}
+.fn{width:18px;height:18px;border-radius:50%;background:rgba(27,158,140,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#5dddd0;flex-shrink:0;margin-top:1px;}
+.ft{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.45;}
+.comp-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:11px;}
+.comp-row:last-child{border-bottom:none;}
+@media(max-width:700px){.notes{display:none;}.wrap{gap:0;}}
+</style>
+</head>
+<body>
+
+<div class="proto-header">
+  <div class="proto-logo">Afri<span>link</span></div>
+  <div class="proto-badge">Interactive Prototype · UX Case Study</div>
+</div>
+
+<div class="stage-row" id="sbar">
+  <button class="sb on"  onclick="go('splash',0)">① Splash</button>
+  <button class="sb"     onclick="go('auth',1)">② Auth</button>
+  <button class="sb"     onclick="go('login',2)">③ Login</button>
+  <button class="sb"     onclick="go('home',3)">④ Home</button>
+  <button class="sb"     onclick="go('send',4)">⑤ Send</button>
+  <button class="sb"     onclick="go('send-confirm',5)">⑥ Confirm</button>
+  <button class="sb"     onclick="go('add-money',6)">⑦ Add Money</button>
+  <button class="sb"     onclick="go('converter',7)">⑧ Convert</button>
+  <button class="sb"     onclick="go('transactions',8)">⑨ History</button>
+  <button class="sb"     onclick="go('success',9)">✓ Done</button>
+</div>
+
+<div class="wrap">
+  <div class="phone">
+    <div class="phone-inner">
+      <div class="notch"></div>
+
+      <!-- ① SPLASH -->
+      <div class="sc on" id="sc-splash">
+        <div class="splash-bg">
+          <div style="width:64px;height:64px;background:rgba(27,158,140,0.2);border-radius:18px;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:1.6rem;">🔗</div>
+          <div class="splash-logo">Afri<span>link</span></div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.45);text-align:center;line-height:1.6;max-width:200px;">Empowering Borders, Connecting Lives</div>
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--teal2);margin:8px 0;"></div>
+          <div style="position:absolute;bottom:44px;left:20px;right:20px;">
+            <button class="btn-p" onclick="go('auth',1)">Get Started →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② AUTH CHOICE -->
+      <div class="sc" id="sc-auth">
+        <div class="splash-bg">
+          <div class="splash-logo" style="font-size:2rem;">Afri<span>link</span></div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.45);text-align:center;line-height:1.6;max-width:220px;margin-bottom:12px;">Send money home to Africa. Zero hidden fees. Real exchange rates.</div>
+          <div style="position:absolute;bottom:44px;left:20px;right:20px;">
+            <button class="btn-p" onclick="go('login',2)">Login</button>
+            <button class="btn-g" onclick="go('signup',10)">Create Account</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ③ LOGIN -->
+      <div class="sc" id="sc-login">
+        <div class="top">
+          <button class="back" onclick="go('auth',1)">←</button>
+          <div style="font-size:17px;font-weight:700;color:var(--ink);">Welcome back</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">Sign in to your Afrilink account</div>
+        </div>
+        <div class="body" style="padding-top:20px;">
+          <span class="lbl">Email Address</span>
+          <input class="inp" type="email" value="amara@email.com"/>
+          <span class="lbl">Password</span>
+          <input class="inp" type="password" value="••••••••"/>
+          <div style="text-align:right;margin-bottom:20px;"><span style="font-size:11px;color:var(--teal);font-weight:600;cursor:pointer;">Forgot password?</span></div>
+          <button class="btn-p" onclick="go('home',3)">Login</button>
+          <div style="text-align:center;margin-top:14px;font-size:11px;color:var(--muted);">New here? <span style="color:var(--teal);font-weight:600;cursor:pointer;" onclick="go('signup',10)">Create Account</span></div>
+        </div>
+      </div>
+
+      <!-- SIGN UP (10) -->
+      <div class="sc" id="sc-signup">
+        <div class="top">
+          <button class="back" onclick="go('auth',1)">←</button>
+          <div style="font-size:17px;font-weight:700;color:var(--ink);">Create Account</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">Start sending money across borders</div>
+        </div>
+        <div class="body" style="padding-top:16px;">
+          <span class="lbl">Full Name</span><input class="inp" placeholder="Amara Nwosu"/>
+          <span class="lbl">Email Address</span><input class="inp" type="email" placeholder="amara@email.com"/>
+          <span class="lbl">Phone Number</span><input class="inp" type="tel" placeholder="+1 (416) 000-0000"/>
+          <span class="lbl">Password</span><input class="inp" type="password" placeholder="Create password"/>
+          <button class="btn-p" onclick="go('verify',11)">Create Account</button>
+        </div>
+      </div>
+
+      <!-- VERIFY (11) -->
+      <div class="sc" id="sc-verify">
+        <div class="top">
+          <button class="back" onclick="go('signup',10)">←</button>
+          <div style="font-size:17px;font-weight:700;color:var(--ink);">Verify Email</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">Enter the 6-digit code sent to amara@email.com</div>
+        </div>
+        <div class="body" style="padding-top:20px;">
+          <input class="inp" placeholder="Enter verification code" style="text-align:center;font-size:1.2rem;font-weight:700;letter-spacing:0.18em;"/>
+          <button class="btn-p" onclick="go('home',3)" style="margin-top:4px;">Verify & Continue</button>
+          <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--muted);">Didn't receive it? <span style="color:var(--teal);font-weight:600;cursor:pointer;">Resend Code</span></div>
+        </div>
+      </div>
+
+      <!-- ④ HOME -->
+      <div class="sc" id="sc-home">
+        <div class="top" style="padding-top:40px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+            <div>
+              <div style="font-size:11px;color:var(--muted);font-weight:600;">Good morning,</div>
+              <div style="font-size:16px;font-weight:700;color:var(--ink);">Amara Nwosu 👋</div>
+            </div>
+            <div style="width:32px;height:32px;background:var(--teal-bg);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;">☰</div>
+          </div>
+        </div>
+        <div class="body" style="padding-top:0;">
+          <div class="bal-card">
+            <div style="font-size:10px;color:rgba(255,255,255,0.65);font-weight:600;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
+              <span>Account Balance</span>
+              <span style="cursor:pointer;font-size:10px;color:rgba(255,255,255,0.5);">Hide Balance</span>
+            </div>
+            <div style="font-size:1.8rem;font-weight:700;color:#fff;margin-bottom:12px;">$108,765</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.6);">CAD · Ending ••• 4821</div>
+          </div>
+          <div class="quick-actions">
+            <div class="qa" onclick="go('send',4)"><div class="qa-icon">📤</div><div class="qa-label">Send Money</div></div>
+            <div class="qa" onclick="go('add-money',6)"><div class="qa-icon">➕</div><div class="qa-label">Add Money</div></div>
+            <div class="qa" onclick="go('transactions',8)"><div class="qa-icon">📋</div><div class="qa-label">Transactions</div></div>
+          </div>
+          <div class="refer-banner">
+            <div style="font-size:22px;">🎁</div>
+            <div>
+              <div style="font-size:12px;font-weight:700;color:#166534;">Refer a Friend — Get $30</div>
+              <div style="font-size:10px;color:#15803d;margin-top:1px;">Code: <strong>BCX2024</strong> · Share &amp; earn</div>
+            </div>
+          </div>
+          <div class="s-h" style="margin-top:4px;">Send Money To</div>
+          <div style="display:flex;gap:8px;margin-bottom:14px;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;" onclick="go('send',4)">
+              <div style="width:40px;height:40px;border-radius:50%;background:#14b8a6;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;">RN</div>
+              <div style="font-size:9px;color:var(--muted);font-weight:600;">Rita Nora</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;" onclick="go('send',4)">
+              <div style="width:40px;height:40px;border-radius:50%;background:#0d9488;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;">ST</div>
+              <div style="font-size:9px;color:var(--muted);font-weight:600;">Sam Tyler</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;" onclick="go('send',4)">
+              <div style="width:40px;height:40px;border-radius:50%;background:#f0fdf4;border:1.5px dashed #86efac;display:flex;align-items:center;justify-content:center;font-size:16px;">+</div>
+              <div style="font-size:9px;color:var(--muted);font-weight:600;">New</div>
+            </div>
+          </div>
+          <div class="s-h">Services</div>
+          <div class="services-grid">
+            <div class="svc" onclick="go('send',4)"><div class="svc-icon">🧾</div><div class="svc-label">Pay Bill</div></div>
+            <div class="svc"><div class="svc-icon">🏪</div><div class="svc-label">Merchants</div></div>
+            <div class="svc" onclick="go('converter',7)"><div class="svc-icon">💱</div><div class="svc-label">Converter</div></div>
+            <div class="svc"><div class="svc-icon">🏷️</div><div class="svc-label">Deals</div></div>
+          </div>
+        </div>
+        <div class="nb">
+          <div class="ni a" onclick="go('home',3)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni" onclick="go('transactions',8)"><span style="font-size:16px;">💸</span>Transact</div>
+          <div class="ni"><span style="font-size:16px;">💳</span>Cards</div>
+          <div class="ni"><span style="font-size:16px;">❓</span>Help</div>
+        </div>
+      </div>
+
+      <!-- ⑤ SEND MONEY -->
+      <div class="sc" id="sc-send">
+        <div class="top">
+          <button class="back" onclick="go('home',3)">←</button>
+          <div style="font-size:15px;font-weight:700;color:var(--ink);">Send Money</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">Zero transfer fees to 7 countries</div>
+        </div>
+        <div class="body">
+          <div class="s-h">Select Recipient</div>
+          <div class="contact-pill">
+            <div class="c-av" style="background:#14b8a6;">RN</div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--ink);">Rita Nora</div><div style="font-size:10px;color:var(--muted);">Nigeria · GTBank ••• 7823</div></div>
+            <div style="width:18px;height:18px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;"><span style="color:#fff;font-size:10px;font-weight:700;">✓</span></div>
+          </div>
+          <div class="contact-pill" onclick="go('send',4)">
+            <div class="c-av" style="background:#0d9488;">ST</div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--ink);">Sam Tyler</div><div style="font-size:10px;color:var(--muted);">Kenya · M-Pesa ••• 3341</div></div>
+          </div>
+          <div class="contact-pill" style="border-style:dashed;">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--teal-bg);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--teal);">+</div>
+            <div style="font-size:12px;color:var(--teal);font-weight:600;">Add New Recipient</div>
+          </div>
+          <div class="s-h" style="margin-top:6px;">Enter Amount (CAD)</div>
+          <div class="amt-wrap">
+            <div style="display:flex;align-items:baseline;justify-content:center;gap:4px;">
+              <span style="font-size:1rem;color:var(--muted);font-weight:600;">CAD</span>
+              <input id="sendAmt" type="number" placeholder="0" value="250" style="border:none;outline:none;font-size:2.2rem;font-weight:700;color:var(--ink);font-family:'DM Sans',sans-serif;width:130px;text-align:center;background:transparent;" oninput="calcRate(this.value)"/>
+            </div>
+            <div class="rate-pill" id="rateResult">≈ NGN 406,250 · Rate: 1 CAD = 1,625 NGN</div>
+          </div>
+          <span class="lbl">Note (optional)</span>
+          <input class="inp" placeholder="e.g. School fees — June"/>
+          <button class="btn-p" onclick="go('send-confirm',5)">Review Transfer →</button>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',3)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni a"><span style="font-size:16px;">💸</span>Transact</div>
+          <div class="ni"><span style="font-size:16px;">💳</span>Cards</div>
+          <div class="ni"><span style="font-size:16px;">❓</span>Help</div>
+        </div>
+      </div>
+
+      <!-- ⑥ SEND CONFIRM -->
+      <div class="sc" id="sc-send-confirm">
+        <div class="top">
+          <button class="back" onclick="go('send',4)">←</button>
+          <div style="font-size:15px;font-weight:700;color:var(--ink);">Review Transfer</div>
+        </div>
+        <div class="body">
+          <div class="card">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+              <div class="c-av" style="background:#14b8a6;width:40px;height:40px;">RN</div>
+              <div><div style="font-size:13px;font-weight:700;color:var(--ink);">Rita Nora</div><div style="font-size:10px;color:var(--muted);">Nigeria · GTBank ••• 7823</div></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:7px;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--muted);">You send</span><span style="font-weight:700;color:var(--ink);" id="cfAmt">CAD 250.00</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--muted);">Exchange rate</span><span style="font-weight:600;color:var(--ink);">1 CAD = 1,625 NGN</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--muted);">Transfer fee</span><span style="font-weight:700;color:#22c55e;">FREE</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;padding-top:7px;border-top:1px solid var(--border);"><span style="color:var(--muted);">Rita receives</span><span style="font-weight:700;color:var(--teal);font-size:14px;" id="cfRecv">NGN 406,250</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--muted);">Delivery time</span><span style="font-weight:600;color:var(--ink);">Instant · &lt; 1 min</span></div>
+            </div>
+          </div>
+          <span class="lbl">Confirm with PIN</span>
+          <div style="display:flex;justify-content:center;gap:11px;margin:10px 0 14px;">
+            <div id="p1" style="width:13px;height:13px;border-radius:50%;background:rgba(27,158,140,0.15);border:2px solid var(--teal);transition:background 0.2s;"></div>
+            <div id="p2" style="width:13px;height:13px;border-radius:50%;background:rgba(27,158,140,0.15);border:2px solid var(--teal);transition:background 0.2s;"></div>
+            <div id="p3" style="width:13px;height:13px;border-radius:50%;background:rgba(27,158,140,0.15);border:2px solid var(--teal);transition:background 0.2s;"></div>
+            <div id="p4" style="width:13px;height:13px;border-radius:50%;background:rgba(27,158,140,0.15);border:2px solid var(--teal);transition:background 0.2s;"></div>
+          </div>
+          <input class="inp" type="password" maxlength="4" placeholder="Enter 4-digit PIN" oninput="fillPin(this.value)" style="text-align:center;letter-spacing:0.15em;font-size:1.1rem;font-weight:700;"/>
+          <button class="btn-p" onclick="go('success',9)">Confirm Transfer</button>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',3)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni a"><span style="font-size:16px;">💸</span>Transact</div>
+          <div class="ni"><span style="font-size:16px;">💳</span>Cards</div>
+          <div class="ni"><span style="font-size:16px;">❓</span>Help</div>
+        </div>
+      </div>
+
+      <!-- ⑦ ADD MONEY -->
+      <div class="sc" id="sc-add-money">
+        <div class="top">
+          <button class="back" onclick="go('home',3)">←</button>
+          <div style="font-size:15px;font-weight:700;color:var(--ink);">Add Money</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">Fund your Afrilink wallet</div>
+        </div>
+        <div class="body">
+          <span class="lbl">Amount to Add (CAD)</span>
+          <input class="inp" type="number" placeholder="Enter amount" value="500" style="font-size:1.1rem;font-weight:700;"/>
+          <div class="s-h" style="margin-top:4px;">Choose Method</div>
+          <div class="method-card sel">
+            <div class="method-icon">🏦</div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--ink);">Bank Transfer</div><div style="font-size:10px;color:var(--muted);">Scotiabank ••• 4821 · 1–2 business days</div></div>
+            <div style="width:18px;height:18px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;"><span style="color:#fff;font-size:10px;">✓</span></div>
+          </div>
+          <div class="method-card">
+            <div class="method-icon">💳</div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--ink);">Debit / Credit Card</div><div style="font-size:10px;color:var(--muted);">Visa, Mastercard · Instant</div></div>
+          </div>
+          <div class="method-card">
+            <div class="method-icon">📱</div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--ink);">Mobile Money</div><div style="font-size:10px;color:var(--muted);">Apple Pay, Google Pay</div></div>
+          </div>
+          <button class="btn-p" style="margin-top:10px;" onclick="go('success',9)">Add CAD 500</button>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',3)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni a"><span style="font-size:16px;">💸</span>Transact</div>
+          <div class="ni"><span style="font-size:16px;">💳</span>Cards</div>
+          <div class="ni"><span style="font-size:16px;">❓</span>Help</div>
+        </div>
+      </div>
+
+      <!-- ⑧ CURRENCY CONVERTER -->
+      <div class="sc" id="sc-converter">
+        <div class="top">
+          <button class="back" onclick="go('home',3)">←</button>
+          <div style="font-size:15px;font-weight:700;color:var(--ink);">Currency Converter</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">Live exchange rates</div>
+        </div>
+        <div class="body">
+          <div class="conv-card">
+            <div class="flag-row">
+              <div class="flag-item"><div class="flag">🇨🇦</div><div class="flag-code">CAD</div><div style="font-size:9px;color:var(--muted);">Canadian Dollar</div></div>
+              <div class="conv-arrow">⇄</div>
+              <div class="flag-item"><div class="flag">🇳🇬</div><div class="flag-code">NGN</div><div style="font-size:9px;color:var(--muted);">Nigerian Naira</div></div>
+            </div>
+            <span class="lbl">Amount (CAD)</span>
+            <input class="inp" type="number" value="100" oninput="convCalc(this.value,'NGN')" id="convIn"/>
+            <div class="conv-result">
+              <div style="font-size:11px;color:var(--teal-dark);font-weight:600;margin-bottom:4px;">You get approximately</div>
+              <div style="font-size:1.5rem;font-weight:700;color:var(--teal-dark);" id="convOut">NGN 162,500</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:4px;">Rate: 1 CAD = 1,625 NGN · Updated now</div>
+            </div>
+          </div>
+          <div class="s-h">Live Rates (per 1 CAD)</div>
+          <div class="card" style="padding:0;overflow:hidden;">
+            <div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;"><div style="display:flex;align-items:center;gap:6px;"><span>🇳🇬</span><span style="font-weight:600;color:var(--ink);">NGN</span></div><span style="font-weight:700;color:var(--teal);">1,625.00</span></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;"><div style="display:flex;align-items:center;gap:6px;"><span>🇰🇪</span><span style="font-weight:600;color:var(--ink);">KES</span></div><span style="font-weight:700;color:var(--teal);">98.40</span></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;"><div style="display:flex;align-items:center;gap:6px;"><span>🇬🇭</span><span style="font-weight:600;color:var(--ink);">GHS</span></div><span style="font-weight:700;color:var(--teal);">11.20</span></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;"><div style="display:flex;align-items:center;gap:6px;"><span>🇹🇿</span><span style="font-weight:600;color:var(--ink);">TZS</span></div><span style="font-weight:700;color:var(--teal);">1,843.00</span></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 14px;font-size:12px;"><div style="display:flex;align-items:center;gap:6px;"><span>🇿🇦</span><span style="font-weight:600;color:var(--ink);">ZAR</span></div><span style="font-weight:700;color:var(--teal);">13.45</span></div>
+          </div>
+          <button class="btn-p" style="margin-top:10px;" onclick="go('send',4)">Send at This Rate →</button>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',3)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni a"><span style="font-size:16px;">💸</span>Transact</div>
+          <div class="ni"><span style="font-size:16px;">💳</span>Cards</div>
+          <div class="ni"><span style="font-size:16px;">❓</span>Help</div>
+        </div>
+      </div>
+
+      <!-- ⑨ TRANSACTION HISTORY -->
+      <div class="sc" id="sc-transactions">
+        <div class="top">
+          <button class="back" onclick="go('home',3)">←</button>
+          <div style="font-size:15px;font-weight:700;color:var(--ink);">Transaction History</div>
+        </div>
+        <div class="body">
+          <div style="display:flex;gap:6px;margin-bottom:14px;">
+            <div style="flex:1;background:var(--teal);color:#fff;border-radius:20px;padding:5px 10px;text-align:center;font-size:10px;font-weight:600;cursor:pointer;">All</div>
+            <div style="flex:1;background:#fff;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:5px 10px;text-align:center;font-size:10px;font-weight:600;cursor:pointer;">Sent</div>
+            <div style="flex:1;background:#fff;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:5px 10px;text-align:center;font-size:10px;font-weight:600;cursor:pointer;">Received</div>
+          </div>
+          <div class="tx-row">
+            <div class="tx-av" style="background:#14b8a6;">RN</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:700;color:var(--ink);">Rita Nora</div><div style="font-size:10px;color:var(--muted);">Sent · Nigeria · May 29</div></div>
+            <div style="text-align:right;"><div style="font-size:12px;font-weight:700;color:var(--red);">−CAD 250</div><div class="status-badge status-done" style="margin-top:3px;">✓ Complete</div></div>
+          </div>
+          <div class="tx-row">
+            <div class="tx-av" style="background:#0d9488;">ST</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:700;color:var(--ink);">Sam Tyler</div><div style="font-size:10px;color:var(--muted);">Sent · Kenya · May 22</div></div>
+            <div style="text-align:right;"><div style="font-size:12px;font-weight:700;color:var(--red);">−CAD 180</div><div class="status-badge status-done" style="margin-top:3px;">✓ Complete</div></div>
+          </div>
+          <div class="tx-row">
+            <div class="tx-av" style="background:#22c55e;">💰</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:700;color:var(--ink);">Wallet Top-Up</div><div style="font-size:10px;color:var(--muted);">Bank Transfer · May 18</div></div>
+            <div style="text-align:right;"><div style="font-size:12px;font-weight:700;color:#22c55e;">+CAD 1,000</div><div class="status-badge status-done" style="margin-top:3px;">✓ Complete</div></div>
+          </div>
+          <div class="tx-row">
+            <div class="tx-av" style="background:#f59e0b;">RN</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:700;color:var(--ink);">Rita Nora</div><div style="font-size:10px;color:var(--muted);">Sent · Nigeria · May 10</div></div>
+            <div style="text-align:right;"><div style="font-size:12px;font-weight:700;color:var(--red);">−CAD 500</div><div class="status-badge status-pend" style="margin-top:3px;">⏳ Pending</div></div>
+          </div>
+          <div class="tx-row">
+            <div class="tx-av" style="background:#8b5cf6;">🎁</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:700;color:var(--ink);">Referral Bonus</div><div style="font-size:10px;color:var(--muted);">BCX2024 · May 5</div></div>
+            <div style="text-align:right;"><div style="font-size:12px;font-weight:700;color:#22c55e;">+CAD 30</div><div class="status-badge status-done" style="margin-top:3px;">✓ Complete</div></div>
+          </div>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',3)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni a"><span style="font-size:16px;">💸</span>Transact</div>
+          <div class="ni"><span style="font-size:16px;">💳</span>Cards</div>
+          <div class="ni"><span style="font-size:16px;">❓</span>Help</div>
+        </div>
+      </div>
+
+      <!-- ✅ SUCCESS -->
+      <div class="sc" id="sc-success">
+        <div class="success-sc">
+          <div class="success-ring">✅</div>
+          <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;color:#fff;text-align:center;" id="successTitle">Transfer Successful!</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);text-align:center;line-height:1.65;max-width:210px;" id="successSub">CAD 250 sent to Rita Nora in Nigeria. She'll receive NGN 406,250 instantly.</div>
+          <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:12px 20px;text-align:center;margin-top:4px;">
+            <div style="font-size:10px;color:rgba(255,255,255,0.45);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;">Reference</div>
+            <div style="font-size:13px;font-weight:700;color:#5dddd0;margin-top:2px;">AFL-2024-88291</div>
+          </div>
+          <button class="btn-p" style="margin-top:8px;width:220px;" onclick="go('home',3)">Back to Home</button>
+          <div style="font-size:11px;color:rgba(255,255,255,0.3);cursor:pointer;" onclick="go('transactions',8)">View in History →</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SIDE NOTES -->
+  <div class="notes">
+    <div class="nc">
+      <div class="nl">About Afrilink</div>
+      <div class="nt">A P2P cross-border money transfer app for the African diaspora in North America. Zero transfer fees. Live exchange rates. Instant delivery.</div>
+    </div>
+    <div class="nc">
+      <div class="nl">Core User Flow</div>
+      <div class="fl"><div class="fn">1</div><div class="ft">Splash → Auth → Login</div></div>
+      <div class="fl"><div class="fn">2</div><div class="ft">Home — balance, quick actions, services</div></div>
+      <div class="fl"><div class="fn">3</div><div class="ft">Send Money — pick recipient, enter amount</div></div>
+      <div class="fl"><div class="fn">4</div><div class="ft">Review transfer + confirm PIN</div></div>
+      <div class="fl"><div class="fn">5</div><div class="ft">Success confirmation + reference</div></div>
+      <div class="fl"><div class="fn">+</div><div class="ft">Add Money, Converter, Transactions also live</div></div>
+    </div>
+    <div class="nc">
+      <div class="nl">Competitor Analysis</div>
+      <div class="comp-row"><span style="color:rgba(255,255,255,0.5);">LemFi</span><span style="color:#5dddd0;font-size:10px;">16 countries</span></div>
+      <div class="comp-row"><span style="color:rgba(255,255,255,0.5);">Chipper</span><span style="color:rgba(255,255,255,0.4);font-size:10px;">7 countries, has fees</span></div>
+      <div class="comp-row"><span style="color:#5dddd0;font-weight:600;">Afrilink</span><span style="color:#5dddd0;font-size:10px;">7 → 16 countries, 0 fees</span></div>
+    </div>
+    <div class="nc">
+      <div class="nl">Design System</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;border-radius:3px;background:#1b9e8c;"></div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Primary Teal #1B9E8C</div></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;border-radius:3px;background:#0d5c50;"></div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Dark #0D5C50</div></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;border-radius:3px;background:#e6f7f5;border:1px solid rgba(255,255,255,0.2);"></div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Teal BG #E6F7F5</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var rates={NGN:1625,KES:98.4,GHS:11.2,TZS:1843,ZAR:13.45,UGX:2640,RWF:990};
+function go(id,idx){
+  document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));
+  var el=document.getElementById('sc-'+id);
+  if(el)el.classList.add('on');
+  document.querySelectorAll('.sb').forEach((b,i)=>b.classList.toggle('on',i===idx));
+}
+function calcRate(v){
+  var n=parseFloat(v)||0;
+  var ngn=(n*1625).toLocaleString();
+  var el=document.getElementById('rateResult');
+  if(el)el.textContent='≈ NGN '+ngn+' · Rate: 1 CAD = 1,625 NGN';
+  var cf=document.getElementById('cfAmt');
+  if(cf)cf.textContent='CAD '+n.toFixed(2);
+  var cr=document.getElementById('cfRecv');
+  if(cr)cr.textContent='NGN '+(n*1625).toLocaleString();
+}
+function convCalc(v){
+  var n=parseFloat(v)||0;
+  var el=document.getElementById('convOut');
+  if(el)el.textContent='NGN '+(n*1625).toLocaleString();
+}
+function fillPin(v){
+  for(var i=1;i<=4;i++){
+    var d=document.getElementById('p'+i);
+    if(d)d.style.background=i<=v.length?'var(--teal)':'rgba(27,158,140,0.15)';
+  }
+  if(v.length===4)setTimeout(()=>go('success',9),350);
+}
+</script>
+</body>
+</html>

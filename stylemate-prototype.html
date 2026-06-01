@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>StyleMate — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--red:#e81c1c;--yellow:#ffd600;--black:#0a0806;--white:#fafaf8;--grey:#1c1c1c;--off:#888;}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#0a0806 0%,#1a1209 50%,#0a0806 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem 4rem;}
+
+.proto-header{width:100%;max-width:980px;display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;padding:0 .5rem;}
+.proto-logo{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--white);letter-spacing:.02em;}
+.proto-logo span{color:var(--red);}
+.proto-badge{font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.35);background:rgba(255,255,255,.06);padding:.4rem .9rem;border-radius:2px;border:1px solid rgba(255,255,255,.09);}
+
+.stage-row{width:100%;max-width:980px;display:flex;gap:4px;margin-bottom:1.5rem;flex-wrap:wrap;}
+.sb{flex:1;min-width:72px;padding:6px 5px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);border-radius:2px;font-size:.63rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.35);cursor:pointer;transition:all .2s;text-align:center;font-family:'DM Sans',sans-serif;}
+.sb.on{background:rgba(232,28,28,.2);border-color:rgba(232,28,28,.6);color:#ff7070;}
+.sb:hover:not(.on){background:rgba(255,255,255,.07);color:rgba(255,255,255,.6);}
+
+.wrap{display:flex;gap:24px;align-items:flex-start;justify-content:center;flex-wrap:wrap;}
+.phone{width:295px;flex-shrink:0;background:#080604;border-radius:44px;padding:11px;box-shadow:0 0 0 1px rgba(255,255,255,.06),0 40px 80px rgba(0,0,0,.7);}
+.phone-inner{width:100%;height:610px;background:var(--white);border-radius:34px;overflow:hidden;position:relative;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:88px;height:26px;background:#080604;border-radius:0 0 14px 14px;z-index:20;}
+.sc{position:absolute;inset:0;display:none;flex-direction:column;background:var(--white);}
+.sc.on{display:flex;}
+
+.top{padding:36px 18px 12px;background:var(--white);flex-shrink:0;}
+.body{flex:1;overflow-y:auto;padding:12px 18px 20px;background:var(--white);}
+.body::-webkit-scrollbar{display:none;}
+.nb{display:flex;background:var(--white);padding:10px 0 6px;border-top:1px solid rgba(0,0,0,.08);flex-shrink:0;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-size:9px;color:#aaa;font-weight:600;letter-spacing:.04em;}
+.ni.a{color:var(--black);}
+.back-b{width:28px;height:28px;background:rgba(0,0,0,.06);border:none;border-radius:4px;cursor:pointer;color:var(--black);font-size:14px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;}
+.inp{width:100%;padding:11px 13px;background:var(--white);border:1.5px solid rgba(0,0,0,.12);border-radius:2px;font-size:13px;font-family:'DM Sans',sans-serif;margin-bottom:10px;box-sizing:border-box;outline:none;color:var(--black);}
+.inp:focus{border-color:var(--black);}
+.inp::placeholder{color:#aaa;}
+.lbl{font-size:11px;font-weight:600;color:var(--off);margin-bottom:4px;letter-spacing:.04em;display:block;}
+.btn-r{width:100%;padding:13px;background:var(--red);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s;letter-spacing:.06em;}
+.btn-r:hover{background:#c01515;}
+.btn-k{width:100%;padding:13px;background:var(--black);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px;letter-spacing:.06em;}
+.btn-o{width:100%;padding:13px;background:transparent;color:var(--black);border:2px solid var(--black);font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px;letter-spacing:.06em;}
+.sec-h{font-size:12px;font-weight:700;color:var(--black);margin-bottom:10px;letter-spacing:.04em;text-transform:uppercase;}
+
+/* splash */
+.splash-bg{flex:1;background:var(--black);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:2rem;position:relative;overflow:hidden;}
+.splash-hero-img{width:100%;height:200px;object-fit:cover;object-position:top;}
+.splash-content{padding:1.5rem 1.5rem 0;}
+
+/* home - discover */
+.search-bar{display:flex;align-items:center;gap:8px;background:#f4f4f4;border-radius:2px;padding:10px 13px;margin-bottom:14px;}
+.search-bar input{border:none;outline:none;background:transparent;flex:1;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--black);}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.cat-card{background:var(--yellow);padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:all .15s;border:2px solid transparent;}
+.cat-card:hover{border-color:var(--black);}
+.cat-icon{width:40px;height:40px;border:2px solid var(--black);background:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.cat-label{font-size:10px;font-weight:700;color:var(--black);letter-spacing:.06em;text-transform:uppercase;}
+
+/* stylists */
+.stylist-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
+.stylist-card{display:flex;flex-direction:column;align-items:center;gap:5px;}
+.stylist-img{width:100%;height:80px;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden;}
+.stylist-name{font-size:10px;font-weight:700;color:var(--black);letter-spacing:.04em;}
+.book-btn{background:var(--black);color:#fff;border:none;padding:5px 8px;font-size:9px;font-weight:700;letter-spacing:.06em;cursor:pointer;width:100%;font-family:'DM Sans',sans-serif;transition:background .15s;}
+.book-btn:hover{background:var(--red);}
+.activity-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(0,0,0,.06);}
+.act-av{width:32px;height:32px;border-radius:50%;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.act-name{font-size:12px;font-weight:700;color:var(--black);}
+.act-post{font-size:11px;color:var(--off);}
+.act-time{font-size:10px;color:#aaa;margin-left:auto;}
+
+/* schedule */
+.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:14px;}
+.cal-day{text-align:center;font-size:9px;font-weight:700;color:var(--off);letter-spacing:.06em;padding:4px 0;}
+.cal-date{text-align:center;padding:7px 0;font-size:11px;font-weight:500;color:var(--black);cursor:pointer;border-radius:2px;transition:all .15s;}
+.cal-date:hover{background:#f4f4f4;}
+.cal-date.sel{background:var(--black);color:#fff;font-weight:700;}
+.cal-date.today{color:var(--red);font-weight:700;}
+.time-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;}
+.time-slot{padding:9px;text-align:center;border:1.5px solid rgba(0,0,0,.12);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+.time-slot:hover{border-color:var(--black);}
+.time-slot.sel{background:var(--yellow);border-color:var(--black);font-weight:700;}
+
+/* notifications */
+.notif-group{margin-bottom:14px;}
+.ng-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--off);margin-bottom:8px;}
+.notif-row{display:flex;align-items:center;gap:10px;padding:10px;background:#f8f8f6;margin-bottom:6px;}
+.notif-av{width:34px;height:34px;border-radius:50%;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.notif-text{flex:1;font-size:12px;color:var(--black);line-height:1.4;}
+.notif-text span{font-weight:700;}
+.notif-img{width:36px;height:36px;background:#e0e0e0;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.connect-btn{background:var(--red);color:#fff;border:none;padding:4px 8px;font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.04em;font-family:'DM Sans',sans-serif;}
+
+/* chat */
+.chat-header{display:flex;align-items:center;gap:10px;padding:10px 18px;background:var(--white);border-bottom:1px solid rgba(0,0,0,.06);flex-shrink:0;}
+.chat-av{width:34px;height:34px;border-radius:50%;background:var(--black);display:flex;align-items:center;justify-content:center;font-size:14px;}
+.chat-actions{margin-left:auto;display:flex;gap:12px;font-size:18px;}
+.msgs{display:flex;flex-direction:column;padding:14px 18px;gap:8px;flex:1;overflow-y:auto;}
+.msgs::-webkit-scrollbar{display:none;}
+.msg{max-width:80%;padding:10px 12px;font-size:12px;line-height:1.5;}
+.msg-them{background:#f4f4f4;color:var(--black);align-self:flex-start;}
+.msg-me{background:var(--black);color:#fff;align-self:flex-end;}
+.msg-book{background:var(--yellow);color:var(--black);align-self:flex-end;font-weight:700;}
+.msg-time{font-size:9px;opacity:.5;margin-top:3px;display:block;text-align:right;}
+.msg-media{width:140px;height:80px;background:#e0e0e0;align-self:flex-start;display:flex;align-items:center;justify-content:center;font-size:24px;}
+.chat-inp-row{display:flex;gap:8px;padding:10px 14px;background:var(--white);border-top:1px solid rgba(0,0,0,.06);flex-shrink:0;}
+.chat-inp-row input{flex:1;border:1.5px solid rgba(0,0,0,.12);padding:9px 13px;font-size:12px;outline:none;font-family:'DM Sans',sans-serif;}
+.chat-send{background:var(--red);border:none;padding:0 14px;color:#fff;cursor:pointer;font-size:14px;}
+
+/* profile */
+.prof-header{background:var(--black);padding:20px 18px 16px;flex-shrink:0;}
+.prof-av{width:56px;height:56px;background:var(--yellow);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--black);}
+.pref-chip{display:inline-flex;align-items:center;padding:5px 10px;border:1.5px solid rgba(0,0,0,.12);font-size:10px;font-weight:600;cursor:pointer;margin:0 5px 5px 0;letter-spacing:.04em;text-transform:uppercase;transition:all .2s;}
+.pref-chip.sel{background:var(--black);color:#fff;border-color:var(--black);}
+
+/* notes */
+.notes{width:260px;flex-shrink:0;}
+.nc{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:2px;padding:14px;margin-bottom:10px;}
+.nl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--yellow);margin-bottom:7px;}
+.nt{font-size:12px;color:rgba(255,255,255,.5);line-height:1.6;}
+.fl{display:flex;gap:7px;margin-bottom:6px;align-items:flex-start;}
+.fn{width:18px;height:18px;background:rgba(232,28,28,.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#ff7070;flex-shrink:0;margin-top:1px;}
+.ft{font-size:12px;color:rgba(255,255,255,.45);line-height:1.45;}
+@media(max-width:700px){.notes{display:none;}.wrap{gap:0;}}
+</style>
+</head>
+<body>
+
+<div class="proto-header">
+  <div class="proto-logo">Style<span>Mate</span>.</div>
+  <div class="proto-badge">Interactive Prototype · UX Case Study</div>
+</div>
+
+<div class="stage-row">
+  <button class="sb on"  onclick="go('splash',0)">① Splash</button>
+  <button class="sb"     onclick="go('login',1)">② Login</button>
+  <button class="sb"     onclick="go('explore',2)">③ Explore</button>
+  <button class="sb"     onclick="go('stylists',3)">④ Stylists</button>
+  <button class="sb"     onclick="go('schedule',4)">⑤ Schedule</button>
+  <button class="sb"     onclick="go('confirm',5)">⑥ Confirm</button>
+  <button class="sb"     onclick="go('notifs',6)">⑦ Notifications</button>
+  <button class="sb"     onclick="go('chat',7)">⑧ Chat</button>
+  <button class="sb"     onclick="go('profile',8)">⑨ Profile</button>
+</div>
+
+<div class="wrap">
+  <div class="phone">
+    <div class="phone-inner">
+      <div class="notch"></div>
+
+      <!-- ① SPLASH -->
+      <div class="sc on" id="sc-splash">
+        <div class="splash-bg">
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,8,6,0) 40%,rgba(10,8,6,.97) 100%);z-index:1;"></div>
+          <div style="width:100%;height:240px;background:linear-gradient(135deg,#1a1209,#2a1a0a);display:flex;align-items:center;justify-content:center;font-size:5rem;">👗</div>
+          <div style="position:relative;z-index:2;padding:1.5rem;width:100%;margin-top:-40px;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:#fff;line-height:.9;margin-bottom:.5rem;">Style<span style="color:var(--red);">Mate</span></div>
+            <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:1.5rem;line-height:1.5;">Connect with Fashion Stylists &amp;<br/>Explore Trends</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.35);text-align:center;margin-bottom:12px;letter-spacing:.08em;">G &nbsp; f &nbsp; ● &nbsp; ●</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+              <button style="padding:12px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.06em;" onclick="go('login',1)">LOG IN</button>
+              <button class="btn-r" style="padding:12px;" onclick="go('login',1)">SIGN UP</button>
+            </div>
+            <div style="text-align:center;font-size:11px;color:rgba(255,255,255,.35);cursor:pointer;letter-spacing:.04em;" onclick="go('explore',2)">Continue as guest</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② LOGIN -->
+      <div class="sc" id="sc-login">
+        <div class="top" style="background:var(--black);padding-top:44px;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:#fff;margin-bottom:4px;">Welcome back</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4);">Sign in to StyleMate</div>
+        </div>
+        <div class="body" style="background:var(--black);">
+          <span class="lbl" style="color:rgba(255,255,255,.5);">Username</span>
+          <input class="inp" placeholder="username" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12);color:#fff;"/>
+          <span class="lbl" style="color:rgba(255,255,255,.5);">Password</span>
+          <input class="inp" type="password" placeholder="••••••••" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12);color:#fff;"/>
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:18px;">
+            <label style="display:flex;align-items:center;gap:5px;color:rgba(255,255,255,.4);cursor:pointer;"><input type="checkbox" checked style="accent-color:var(--red);"/> Remember me</label>
+            <span style="color:var(--yellow);cursor:pointer;">Forgot password?</span>
+          </div>
+          <button class="btn-r" onclick="go('explore',2)">LOG IN</button>
+          <div style="display:flex;gap:8px;margin:12px 0;align-items:center;"><div style="flex:1;height:1px;background:rgba(255,255,255,.1);"></div><span style="font-size:9px;color:rgba(255,255,255,.25);letter-spacing:.06em;">OR</span><div style="flex:1;height:1px;background:rgba(255,255,255,.1);"></div></div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+            <button style="padding:9px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.04em;" onclick="go('explore',2)">Google</button>
+            <button style="padding:9px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.04em;" onclick="go('explore',2)">Facebook</button>
+            <button style="padding:9px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.04em;" onclick="go('explore',2)">Apple</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ③ EXPLORE/HOME -->
+      <div class="sc" id="sc-explore">
+        <div class="top" style="padding-top:38px;">
+          <div class="search-bar">
+            <span style="font-size:14px;color:var(--off);">🔍</span>
+            <input placeholder="Search for a stylist or style inspiration…"/>
+          </div>
+        </div>
+        <div class="body" style="padding-top:0;">
+          <div class="sec-h">Browse Categories</div>
+          <div class="cat-grid">
+            <div class="cat-card" onclick="go('stylists',3)"><div class="cat-icon">♀</div><div class="cat-label">Casual Looks</div></div>
+            <div class="cat-card" onclick="go('stylists',3)"><div class="cat-icon">📡</div><div class="cat-label">Formal Attire</div></div>
+            <div class="cat-card" onclick="go('stylists',3)"><div class="cat-icon">🔄</div><div class="cat-label">Seasonal</div></div>
+            <div class="cat-card" onclick="go('stylists',3)"><div class="cat-icon">◆</div><div class="cat-label">Accessories</div></div>
+            <div class="cat-card" onclick="go('stylists',3)"><div class="cat-icon">⊙</div><div class="cat-label">Makeup Tips</div></div>
+            <div class="cat-card" onclick="go('stylists',3)"><div class="cat-icon">👟</div><div class="cat-label">Luxury Brands</div></div>
+          </div>
+        </div>
+        <div class="nb">
+          <div class="ni a"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni" onclick="go('explore',2)"><span style="font-size:16px;">🔍</span>Search</div>
+          <div class="ni" onclick="go('schedule',4)" style="position:relative;"><span style="font-size:22px;position:relative;top:-2px;display:block;width:40px;height:40px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:-8px auto 2px;">+</span></div>
+          <div class="ni" onclick="go('notifs',6)"><span style="font-size:16px;">🔔</span>Notifs</div>
+          <div class="ni" onclick="go('profile',8)"><span style="font-size:16px;">👤</span>Profile</div>
+        </div>
+      </div>
+
+      <!-- ④ STYLISTS -->
+      <div class="sc" id="sc-stylists">
+        <div class="top" style="padding-top:38px;">
+          <button class="back-b" onclick="go('explore',2)">←</button>
+          <div style="font-size:15px;font-weight:700;color:var(--black);">Connect with a Stylist</div>
+        </div>
+        <div class="body">
+          <div class="sec-h">For You</div>
+          <div class="stylist-row" style="margin-bottom:14px;">
+            <div class="stylist-card"><div class="stylist-img" style="background:linear-gradient(135deg,#e0d8d0,#c8c0b8);">👩🏿</div><div class="stylist-name">Tolu</div><button class="book-btn" onclick="go('schedule',4)">BOOK</button></div>
+            <div class="stylist-card"><div class="stylist-img" style="background:linear-gradient(135deg,#e8e0d8,#d0c8c0);">👱🏼‍♀️</div><div class="stylist-name">Summer</div><button class="book-btn" onclick="go('schedule',4)">BOOK</button></div>
+            <div class="stylist-card"><div class="stylist-img" style="background:linear-gradient(135deg,#d0d0d0,#b8b8b8);">👩🏽</div><div class="stylist-name">Trinity</div><button class="book-btn" onclick="go('schedule',4)">BOOK</button></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-bottom:12px;"><span style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--off);cursor:pointer;text-transform:uppercase;">View All →</span></div>
+          <div class="sec-h">Recently Saved</div>
+          <div class="stylist-row" style="margin-bottom:14px;">
+            <div class="stylist-card"><div class="stylist-img" style="background:linear-gradient(135deg,#d8d8e0,#b8b8c8);">🕶️</div><div class="stylist-name">Sleek Sam</div><button class="book-btn" onclick="go('schedule',4)">BOOK</button></div>
+            <div class="stylist-card"><div class="stylist-img" style="background:linear-gradient(135deg,#e8e0d8,#d0c8c0);">👱🏼‍♀️</div><div class="stylist-name">Summer</div><button class="book-btn" onclick="go('schedule',4)">BOOK</button></div>
+            <div class="stylist-card"><div class="stylist-img" style="background:linear-gradient(135deg,#d0d0d0,#b8b8b8);">👩🏽</div><div class="stylist-name">Trinity</div><button class="book-btn" onclick="go('schedule',4)">BOOK</button></div>
+          </div>
+          <div class="sec-h">Stylist Activity</div>
+          <div class="activity-row"><div class="act-av">🕶️</div><div><div class="act-name">Sleek Sam</div><div class="act-post">Latest Runway Picks</div></div><div class="act-time">12 min</div></div>
+          <div class="activity-row"><div class="act-av">👨🏾</div><div><div class="act-name">Broody</div><div class="act-post">Exciting Fashion Advice</div></div><div class="act-time">30 min</div></div>
+          <div class="activity-row"><div class="act-av">👩🏻</div><div><div class="act-name">Lian</div><div class="act-post">Vintage Summer Looks</div></div><div class="act-time">1 hr</div></div>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('explore',2)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni a"><span style="font-size:16px;">🔍</span>Search</div>
+          <div class="ni" onclick="go('schedule',4)" style="position:relative;"><span style="font-size:22px;width:40px;height:40px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:-8px auto 2px;color:#fff;">+</span></div>
+          <div class="ni" onclick="go('notifs',6)"><span style="font-size:16px;">🔔</span>Notifs</div>
+          <div class="ni" onclick="go('profile',8)"><span style="font-size:16px;">👤</span>Profile</div>
+        </div>
+      </div>
+
+      <!-- ⑤ SCHEDULE -->
+      <div class="sc" id="sc-schedule">
+        <div class="top">
+          <button class="back-b" onclick="go('stylists',3)">←</button>
+          <div style="font-size:15px;font-weight:700;color:var(--black);">Schedule your session</div>
+          <div style="font-size:11px;color:var(--off);margin-top:2px;">Stylist Selection · Summer</div>
+        </div>
+        <div class="body">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border:1.5px solid rgba(0,0,0,.12);margin-bottom:12px;">
+            <div style="font-size:12px;font-weight:700;color:var(--black);">Number of sessions</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <button style="width:22px;height:22px;background:rgba(0,0,0,.06);border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;" onclick="adjSess(-1)">−</button>
+              <span style="font-size:13px;font-weight:700;" id="sessCount">1</span>
+              <button style="width:22px;height:22px;background:rgba(0,0,0,.06);border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;" onclick="adjSess(1)">+</button>
+            </div>
+          </div>
+          <div class="cal-header">
+            <span style="font-size:13px;font-weight:700;color:var(--black);">Date</span>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:12px;font-weight:600;color:var(--black);">Jun</span>
+              <span style="color:var(--off);">▾</span>
+            </div>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-day">M</div><div class="cal-day">T</div><div class="cal-day">W</div><div class="cal-day">T</div><div class="cal-day">F</div><div class="cal-day">S</div><div class="cal-day">S</div>
+            <div></div><div></div><div></div><div></div><div></div><div class="cal-date">1</div><div class="cal-date">2</div>
+            <div class="cal-date">3</div><div class="cal-date">4</div><div class="cal-date">5</div><div class="cal-date">6</div><div class="cal-date">7</div><div class="cal-date">8</div><div class="cal-date">9</div>
+            <div class="cal-date">10</div><div class="cal-date">11</div><div class="cal-date today">12</div><div class="cal-date">13</div><div class="cal-date">14</div><div class="cal-date">15</div><div class="cal-date">16</div>
+            <div class="cal-date">17</div><div class="cal-date">18</div><div class="cal-date">19</div><div class="cal-date">20</div><div class="cal-date">21</div><div class="cal-date">22</div><div class="cal-date">23</div>
+            <div class="cal-date">24</div><div class="cal-date">25</div><div class="cal-date">26</div><div class="cal-date">27</div><div class="cal-date">28</div><div class="cal-date">29</div><div class="cal-date">30</div>
+            <div class="cal-date">31</div>
+          </div>
+          <div style="font-size:12px;font-weight:700;color:var(--black);margin-bottom:8px;letter-spacing:.04em;text-transform:uppercase;">Time</div>
+          <div class="time-grid">
+            <div class="time-slot" onclick="selTime(this)">09:00</div>
+            <div class="time-slot" onclick="selTime(this)">11:00</div>
+            <div class="time-slot" onclick="selTime(this)">14:00</div>
+            <div class="time-slot" onclick="selTime(this)">16:00</div>
+            <div class="time-slot" onclick="selTime(this)">18:00</div>
+            <div class="time-slot sel" onclick="selTime(this)">20:00</div>
+            <div class="time-slot" onclick="selTime(this)">22:00</div>
+          </div>
+          <button class="btn-r" onclick="go('confirm',5)">CONFIRM</button>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('explore',2)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni" onclick="go('stylists',3)"><span style="font-size:16px;">🔍</span>Search</div>
+          <div class="ni a"><span style="font-size:22px;width:40px;height:40px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:-8px auto 2px;color:#fff;">+</span></div>
+          <div class="ni" onclick="go('notifs',6)"><span style="font-size:16px;">🔔</span>Notifs</div>
+          <div class="ni" onclick="go('profile',8)"><span style="font-size:16px;">👤</span>Profile</div>
+        </div>
+      </div>
+
+      <!-- ⑥ CONFIRMATION -->
+      <div class="sc" id="sc-confirm">
+        <div style="flex:1;background:var(--black);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:2rem;text-align:center;">
+          <div style="width:70px;height:70px;background:rgba(255,214,0,.15);border:2px solid var(--yellow);display:flex;align-items:center;justify-content:center;font-size:2rem;">✅</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#fff;">Booking Confirmed!</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.5);line-height:1.6;max-width:220px;">Your session with <strong style="color:var(--yellow);">Summer</strong> is booked for June 12 at 20:00. You'll receive a confirmation notification.</div>
+          <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);padding:14px 20px;width:100%;max-width:240px;">
+            <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:4px;">Session Reference</div>
+            <div style="font-size:13px;font-weight:700;color:var(--yellow);letter-spacing:.06em;">SM-2024-88291</div>
+          </div>
+          <button class="btn-r" style="max-width:240px;" onclick="go('chat',7)">💬 Message Your Stylist</button>
+          <div style="font-size:11px;color:rgba(255,255,255,.3);cursor:pointer;letter-spacing:.04em;" onclick="go('explore',2)">Back to Home</div>
+        </div>
+      </div>
+
+      <!-- ⑦ NOTIFICATIONS -->
+      <div class="sc" id="sc-notifs">
+        <div class="top" style="padding-top:38px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="font-size:15px;font-weight:700;color:var(--black);">Notifications</div>
+            <span style="font-size:18px;color:var(--off);cursor:pointer;">⚙</span>
+          </div>
+        </div>
+        <div class="body">
+          <div class="notif-group">
+            <div class="ng-label">New</div>
+            <div class="notif-row"><div class="notif-av">👩🏻‍🦰</div><div class="notif-text"><span>Stylist</span> others liked your Style</div><div class="notif-img">🧥</div></div>
+            <div class="notif-row"><div class="notif-av">👩🏾</div><div class="notif-text"><span>Shanne</span> Followed your style</div><button class="connect-btn">CONNECT</button></div>
+          </div>
+          <div class="notif-group">
+            <div class="ng-label">This Week</div>
+            <div class="notif-row"><div class="notif-av">👨🏿</div><div class="notif-text"><span>John</span> Commented on your style</div><div class="notif-img">🏢</div></div>
+            <div class="notif-row"><div class="notif-av">👩🏼</div><div class="notif-text"><span>Brix</span> saved your style</div><div class="notif-img">🛍</div></div>
+          </div>
+          <div class="notif-group">
+            <div class="ng-label">Earlier Today</div>
+            <div class="notif-row"><div class="notif-av">👩🏾</div><div class="notif-text"><span>May</span> and 12 others liked your post</div><div class="notif-img">🧤</div></div>
+            <div class="notif-row"><div class="notif-av">👩🏿</div><div class="notif-text"><span>Bayo</span> Posted Liked your style</div></div>
+          </div>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('explore',2)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni" onclick="go('stylists',3)"><span style="font-size:16px;">🔍</span>Search</div>
+          <div class="ni"><span style="font-size:22px;width:40px;height:40px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:-8px auto 2px;color:#fff;">+</span></div>
+          <div class="ni a"><span style="font-size:16px;">🔔</span>Notifs</div>
+          <div class="ni" onclick="go('profile',8)"><span style="font-size:16px;">👤</span>Profile</div>
+        </div>
+      </div>
+
+      <!-- ⑧ CHAT -->
+      <div class="sc" id="sc-chat">
+        <div class="chat-header">
+          <button class="back-b" onclick="go('stylists',3)" style="margin-bottom:0;">←</button>
+          <div class="chat-av">👩🏼‍🦳</div>
+          <div style="margin-left:8px;"><div style="font-size:13px;font-weight:700;color:var(--black);">Lily</div><div style="font-size:10px;color:#4caf50;font-weight:600;">● Available now</div></div>
+          <div class="chat-actions"><span style="cursor:pointer;">📞</span><span style="cursor:pointer;">📹</span></div>
+        </div>
+        <div class="msgs">
+          <div class="msg-media" style="align-self:flex-start;font-size:22px;width:140px;height:90px;background:#e0e0e0;display:flex;align-items:center;justify-content:center;">🛍️<div style="position:absolute;bottom:5px;right:8px;font-size:9px;color:rgba(0,0,0,.5);">23:5</div></div>
+          <div class="msg msg-them">Check out the latest trends in fashion! Join <span class="msg-time">23:53</span></div>
+          <div style="text-align:center;font-size:10px;color:var(--off);margin:.5rem 0;letter-spacing:.06em;">Today 11:0</div>
+          <div class="msg msg-me">Let's schedule <span class="msg-time">11:00</span></div>
+          <div class="msg msg-book">▶ <span style="text-decoration:underline;cursor:pointer;" onclick="go('schedule',4)">BOOK</span> <span class="msg-time">11:0</span></div>
+          <div class="msg msg-them">Exc <span class="msg-time">11:05</span></div>
+          <div class="msg msg-me">Can't wait! <span class="msg-time">11:09</span></div>
+        </div>
+        <div class="chat-inp-row">
+          <span style="font-size:18px;cursor:pointer;color:var(--off);">🗑</span>
+          <input placeholder="Message…"/>
+          <button class="chat-send">→</button>
+        </div>
+      </div>
+
+      <!-- ⑨ PROFILE -->
+      <div class="sc" id="sc-profile">
+        <div class="prof-header">
+          <div style="display:flex;align-items:center;gap:12px;padding-top:10px;">
+            <div class="prof-av">SC</div>
+            <div><div style="font-size:14px;font-weight:700;color:#fff;">Sarah Chen</div><div style="font-size:11px;color:rgba(255,255,255,.5);">@sarah.styles</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:14px;border-top:1px solid rgba(255,255,255,.1);padding-top:12px;text-align:center;">
+            <div><div style="font-size:16px;font-weight:700;color:var(--yellow);">3</div><div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.06em;text-transform:uppercase;">Sessions</div></div>
+            <div style="border-left:1px solid rgba(255,255,255,.1);border-right:1px solid rgba(255,255,255,.1);"><div style="font-size:16px;font-weight:700;color:var(--yellow);">12</div><div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.06em;text-transform:uppercase;">Saved</div></div>
+            <div><div style="font-size:16px;font-weight:700;color:var(--yellow);">48</div><div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.06em;text-transform:uppercase;">Following</div></div>
+          </div>
+        </div>
+        <div class="body">
+          <div class="sec-h" style="margin-top:4px;">Style Preferences</div>
+          <div style="display:flex;flex-wrap:wrap;margin-bottom:14px;">
+            <span class="pref-chip sel">Casual</span>
+            <span class="pref-chip sel">Formal</span>
+            <span class="pref-chip">Streetwear</span>
+            <span class="pref-chip sel">Luxury</span>
+            <span class="pref-chip">Vintage</span>
+            <span class="pref-chip">Minimalist</span>
+          </div>
+          <div class="sec-h">Membership</div>
+          <div style="background:var(--yellow);padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--black);">FREE</div>
+            <div style="flex:1;"><div style="font-size:11px;font-weight:700;color:var(--black);">Current Plan</div><div style="font-size:10px;color:rgba(0,0,0,.5);">1 session/month · Standard chat</div></div>
+            <button class="btn-k" style="width:auto;padding:7px 12px;font-size:10px;margin:0;" onclick="go('confirm',5)">UPGRADE</button>
+          </div>
+          <div class="sec-h">Settings</div>
+          <div style="display:flex;flex-direction:column;gap:0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(0,0,0,.06);cursor:pointer;font-size:13px;color:var(--black);">🔔 Notifications <span style="color:var(--off);font-size:11px;">On ›</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(0,0,0,.06);cursor:pointer;font-size:13px;color:var(--black);">💳 Payment Methods <span style="color:var(--off);font-size:11px;">›</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;cursor:pointer;font-size:13px;color:var(--red);">Sign Out</div>
+          </div>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('explore',2)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni" onclick="go('stylists',3)"><span style="font-size:16px;">🔍</span>Search</div>
+          <div class="ni"><span style="font-size:22px;width:40px;height:40px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:-8px auto 2px;color:#fff;">+</span></div>
+          <div class="ni" onclick="go('notifs',6)"><span style="font-size:16px;">🔔</span>Notifs</div>
+          <div class="ni a"><span style="font-size:16px;">👤</span>Profile</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SIDE NOTES -->
+  <div class="notes">
+    <div class="nc"><div class="nl">About StyleMate</div><div class="nt">A stylist booking app connecting users with professional fashion stylists for virtual 1-on-1 sessions — wardrobe advice, trend exploration, and outfit planning from anywhere.</div></div>
+    <div class="nc">
+      <div class="nl">User Flow</div>
+      <div class="fl"><div class="fn">1</div><div class="ft">Splash → Log in with email or social</div></div>
+      <div class="fl"><div class="fn">2</div><div class="ft">Explore categories (Casual, Formal, Luxury…)</div></div>
+      <div class="fl"><div class="fn">3</div><div class="ft">Browse &amp; save stylists → Book a session</div></div>
+      <div class="fl"><div class="fn">4</div><div class="ft">Schedule — pick date, time, number of sessions</div></div>
+      <div class="fl"><div class="fn">5</div><div class="ft">Confirmation + chat with stylist via video</div></div>
+      <div class="fl"><div class="fn">6</div><div class="ft">Notifications · Profile &amp; membership upgrade</div></div>
+    </div>
+    <div class="nc">
+      <div class="nl">Design System</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;background:#0a0806;border:1px solid rgba(255,255,255,.2);"></div><div style="font-size:11px;color:rgba(255,255,255,.45);">Black #0A0806</div></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;background:#e81c1c;"></div><div style="font-size:11px;color:rgba(255,255,255,.45);">Red #E81C1C</div></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;background:#ffd600;"></div><div style="font-size:11px;color:rgba(255,255,255,.45);">Yellow #FFD600</div></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;background:#fafaf8;border:1px solid rgba(255,255,255,.2);"></div><div style="font-size:11px;color:rgba(255,255,255,.45);">White #FAFAF8</div></div>
+      </div>
+    </div>
+    <div class="nc"><div class="nl">Research Method</div><div class="nt">Live whiteboard user interviews — real questions, verbatim answers captured. Journey mapping, low-fi wireframing, and hi-fi Figma screens all derived from interview insights.</div></div>
+  </div>
+</div>
+
+<script>
+function go(id,idx){
+  document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));
+  var el=document.getElementById('sc-'+id);
+  if(el)el.classList.add('on');
+  document.querySelectorAll('.sb').forEach((b,i)=>b.classList.toggle('on',i===idx));
+}
+function selTime(el){document.querySelectorAll('.time-slot').forEach(t=>t.classList.remove('sel'));el.classList.add('sel');}
+function selCal(el){document.querySelectorAll('.cal-date').forEach(d=>d.classList.remove('sel'));el.classList.add('sel');}
+document.querySelectorAll('.cal-date').forEach(d=>d.addEventListener('click',()=>selCal(d)));
+var sess=1;
+function adjSess(n){sess=Math.max(1,Math.min(10,sess+n));document.getElementById('sessCount').textContent=sess;}
+</script>
+</body>
+</html>

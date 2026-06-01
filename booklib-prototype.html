@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BookLib — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --blue:#0067A2;
+  --blue2:#0078bc;
+  --blue-light:#e0eaf4;
+  --yellow:#EDBD00;
+  --yellow2:#f5cc30;
+  --navy:#012C46;
+  --bg:#f5f4f0;
+  --white:#ffffff;
+  --off:#6b7a8a;
+  --border:rgba(0,103,162,0.12);
+  --ink:#1a2533;
+}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#012C46 0%,#0067A2 60%,#012C46 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem 4rem;}
+.proto-header{width:100%;max-width:980px;display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;padding:0 .5rem;}
+.proto-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;color:#fff;letter-spacing:-.02em;}
+.proto-logo span{color:var(--yellow);}
+.proto-badge{font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.35);background:rgba(255,255,255,.08);padding:.4rem .9rem;border-radius:20px;border:1px solid rgba(255,255,255,.12);}
+.stage-row{width:100%;max-width:980px;display:flex;gap:4px;margin-bottom:1.5rem;flex-wrap:wrap;}
+.sb{flex:1;min-width:70px;padding:5px 5px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);border-radius:8px;font-size:.63rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.35);cursor:pointer;transition:all .2s;text-align:center;font-family:'DM Sans',sans-serif;}
+.sb.on{background:rgba(237,189,0,.25);border-color:rgba(237,189,0,.6);color:#f5d84a;}
+.sb:hover:not(.on){background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);}
+.wrap{display:flex;gap:24px;align-items:flex-start;justify-content:center;flex-wrap:wrap;}
+/* Phone */
+.phone{width:295px;flex-shrink:0;background:#0a0f14;border-radius:44px;padding:11px;box-shadow:0 0 0 1px rgba(255,255,255,.07),0 40px 80px rgba(0,0,0,.5);}
+.phone-inner{width:100%;height:610px;background:var(--bg);border-radius:34px;overflow:hidden;position:relative;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:88px;height:26px;background:#0a0f14;border-radius:0 0 14px 14px;z-index:20;}
+.sc{position:absolute;inset:0;display:none;flex-direction:column;background:var(--bg);}
+.sc.on{display:flex;}
+/* shared */
+.top{padding:36px 18px 12px;background:var(--bg);flex-shrink:0;}
+.body{flex:1;overflow-y:auto;padding:12px 18px 20px;}
+.body::-webkit-scrollbar{display:none;}
+.nb{display:flex;background:var(--white);padding:10px 0 6px;border-top:1px solid var(--border);flex-shrink:0;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-size:9px;color:#aaa;font-weight:500;}
+.ni.a{color:var(--blue);}
+.ni.a svg{stroke:var(--blue);}
+.back-b{width:28px;height:28px;background:var(--blue-light);border:none;border-radius:8px;cursor:pointer;color:var(--blue);font-size:14px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;}
+.inp{width:100%;padding:11px 13px;background:var(--white);border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:'DM Sans',sans-serif;margin-bottom:10px;box-sizing:border-box;outline:none;color:var(--ink);}
+.inp:focus{border-color:var(--blue2);}
+.inp::placeholder{color:#aaa;}
+.lbl{font-size:11px;font-weight:600;color:var(--off);margin-bottom:4px;letter-spacing:.04em;display:block;}
+.btn-b{width:100%;padding:13px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s;}
+.btn-b:hover{background:var(--blue2);}
+.btn-out{width:100%;padding:13px;background:transparent;color:var(--blue);border:1.5px solid var(--blue);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px;}
+.sec-h{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:10px;}
+/* book covers */
+.book-covers{display:flex;gap:8px;overflow-x:auto;margin-bottom:12px;padding-bottom:4px;}
+.book-covers::-webkit-scrollbar{display:none;}
+.book-cover{width:70px;height:96px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;text-align:center;padding:4px;line-height:1.2;cursor:pointer;transition:transform .15s;}
+.book-cover:hover{transform:scale(1.05);}
+/* club card */
+.club-card{background:var(--yellow);border-radius:12px;padding:14px;display:flex;flex-direction:column;cursor:pointer;transition:all .2s;}
+.club-card:hover{filter:brightness(1.05);}
+.club-name{font-size:13px;font-weight:700;color:var(--navy);}
+.club-meta{font-size:10px;color:rgba(1,44,70,.6);margin-top:3px;}
+.club-cta{font-size:10px;font-weight:700;color:var(--blue);margin-top:8px;text-decoration:underline;cursor:pointer;}
+/* activity row */
+.act-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);}
+.act-av{width:26px;height:26px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;color:var(--blue);}
+.act-text{font-size:11px;color:var(--ink);}
+/* tab row */
+.tab-row{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:12px;}
+.tab{padding:7px 10px;font-size:11px;font-weight:600;cursor:pointer;color:var(--off);border-bottom:2px solid transparent;transition:all .15s;}
+.tab.a{color:var(--blue);border-bottom-color:var(--blue);}
+/* genre chips */
+.chip{display:inline-flex;padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:11px;font-weight:500;color:var(--ink);cursor:pointer;margin:0 5px 6px 0;transition:all .2s;}
+.chip.sel{background:var(--blue);color:#fff;border-color:var(--blue);}
+/* search */
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--white);border-radius:10px;padding:10px 13px;margin-bottom:14px;border:1.5px solid var(--border);}
+.search-bar input{border:none;outline:none;background:transparent;flex:1;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--ink);}
+/* poll */
+.poll-opt{background:var(--white);border:1.5px solid var(--border);border-radius:8px;padding:10px 13px;margin-bottom:7px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;}
+.poll-opt:hover,.poll-opt.sel{border-color:var(--blue);background:var(--blue-light);}
+.poll-bar{flex:1;height:6px;background:#e0e0e0;border-radius:3px;overflow:hidden;}
+.poll-fill{height:100%;background:var(--blue);border-radius:3px;}
+/* notif */
+.notif{display:flex;align-items:center;gap:10px;background:var(--white);border-radius:11px;padding:11px 12px;margin-bottom:7px;border:1px solid var(--border);cursor:pointer;}
+.notif-av{width:32px;height:32px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.notif-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);flex-shrink:0;}
+/* notes */
+.notes{width:260px;flex-shrink:0;}
+.nc{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:14px;margin-bottom:10px;}
+.nl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--yellow);margin-bottom:7px;}
+.nt{font-size:12px;color:rgba(255,255,255,.5);line-height:1.6;}
+.fl{display:flex;gap:7px;margin-bottom:6px;align-items:flex-start;}
+.fn{width:18px;height:18px;border-radius:50%;background:rgba(237,189,0,.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--yellow);flex-shrink:0;margin-top:1px;}
+.ft{font-size:12px;color:rgba(255,255,255,.45);line-height:1.45;}
+.comp-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:11px;}
+.comp-row:last-child{border-bottom:none;}
+@media(max-width:700px){.notes{display:none;}.wrap{gap:0;}}
+</style>
+</head>
+<body>
+
+<div class="proto-header">
+  <div class="proto-logo">Book<span>Lib</span></div>
+  <div class="proto-badge">Interactive Prototype · UI/UX Case Study</div>
+</div>
+
+<div class="stage-row">
+  <button class="sb on"  onclick="go('splash',0)">① Splash</button>
+  <button class="sb"     onclick="go('onboard',1)">② Onboard</button>
+  <button class="sb"     onclick="go('home',2)">③ Home</button>
+  <button class="sb"     onclick="go('club',3)">④ Book Club</button>
+  <button class="sb"     onclick="go('search',4)">⑤ Search</button>
+  <button class="sb"     onclick="go('poll',5)">⑥ Poll</button>
+  <button class="sb"     onclick="go('create-club',6)">⑦ Create Club</button>
+  <button class="sb"     onclick="go('notifs',7)">⑧ Notifications</button>
+  <button class="sb"     onclick="go('profile',8)">⑨ Profile</button>
+</div>
+
+<div class="wrap">
+  <div class="phone">
+    <div class="phone-inner">
+      <div class="notch"></div>
+
+      <!-- ① SPLASH -->
+      <div class="sc on" id="sc-splash">
+        <div style="flex:1;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:2.5rem;position:relative;overflow:hidden;">
+          <div style="position:absolute;bottom:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(237,189,0,.12);"></div>
+          <div style="position:absolute;top:-30px;left:-30px;width:140px;height:140px;border-radius:50%;background:rgba(0,103,162,.3);"></div>
+          <div style="font-size:3.5rem;position:relative;z-index:1;">📚</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:2.5rem;color:#fff;letter-spacing:-.02em;position:relative;z-index:1;">Book<span style="color:var(--yellow);">Lib</span></div>
+          <div style="font-size:11px;color:rgba(255,255,255,.45);text-align:center;line-height:1.6;max-width:200px;position:relative;z-index:1;">Where stories come alive — Create clubs, track reading, grow together.</div>
+          <div style="position:absolute;bottom:44px;left:24px;right:24px;display:flex;flex-direction:column;gap:8px;">
+            <button class="btn-b" onclick="go('onboard',1)">Log In</button>
+            <button class="btn-out" style="color:#fff;border-color:rgba(255,255,255,.3);" onclick="go('onboard',1)">Sign Up</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② ONBOARDING -->
+      <div class="sc" id="sc-onboard">
+        <div class="top">
+          <div style="font-size:16px;font-weight:700;color:var(--blue);margin-top:8px;">Hi Sam 👋</div>
+          <div style="font-size:11px;color:var(--off);margin-top:2px;">Connect with other book lovers today</div>
+        </div>
+        <div class="body">
+          <span class="lbl">What is your reading level?</span>
+          <div style="display:flex;gap:7px;margin-bottom:14px;">
+            <button id="lv1" class="chip" onclick="selLevel('lv1')">Beginner</button>
+            <button id="lv2" class="chip" onclick="selLevel('lv2')">Intermediate</button>
+            <button id="lv3" class="chip sel" onclick="selLevel('lv3')">Advanced</button>
+          </div>
+          <span class="lbl">Who are your favourite authors? <span style="color:var(--blue);">(choose up to 3)</span></span>
+          <input class="inp" placeholder="Maximum of 3…" style="margin-bottom:14px;"/>
+          <span class="lbl">What are your favourite genres</span>
+          <div style="display:flex;flex-wrap:wrap;margin-bottom:16px;">
+            <button class="chip sel" onclick="this.classList.toggle('sel')">Fiction</button>
+            <button class="chip" onclick="this.classList.toggle('sel')">Fantasy</button>
+            <button class="chip" onclick="this.classList.toggle('sel')">Horror</button>
+            <button class="chip" onclick="this.classList.toggle('sel')">Mystery</button>
+            <button class="chip" onclick="this.classList.toggle('sel')">Sci-Fi</button>
+            <button class="chip sel" onclick="this.classList.toggle('sel')">True Crime</button>
+            <button class="chip" onclick="this.classList.toggle('sel')">Classic</button>
+            <button class="chip sel" onclick="this.classList.toggle('sel')">Romance</button>
+          </div>
+          <button class="btn-b" onclick="go('home',2)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- ③ HOME -->
+      <div class="sc" id="sc-home">
+        <div class="top">
+          <div style="font-size:16px;font-weight:700;color:var(--blue);margin-top:8px;">Welcome Sam</div>
+        </div>
+        <div class="body">
+          <div class="sec-h">Trending books for you</div>
+          <div class="book-covers" style="margin-bottom:14px;">
+            <div class="book-cover" style="background:linear-gradient(135deg,#8B1A1A,#c0392b);" onclick="go('search',4)">One<br/>Bullet<br/>Away</div>
+            <div class="book-cover" style="background:linear-gradient(135deg,#e74c3c,#c0392b);" onclick="go('search',4)">The<br/>Power<br/>of<br/>Agency</div>
+            <div class="book-cover" style="background:linear-gradient(135deg,#27ae60,#1e8449);" onclick="go('search',4)">Evvi<br/>Drak<br/>Sta<br/>Ove</div>
+            <div class="book-cover" style="background:linear-gradient(135deg,#2980b9,#1a6fa8);" onclick="go('search',4)">Lunar<br/>Storm</div>
+          </div>
+          <div class="sec-h">Currently Reading</div>
+          <div class="book-covers" style="margin-bottom:14px;">
+            <div class="book-cover" style="background:linear-gradient(135deg,#1a1a2e,#16213e);width:80px;height:60px;border-radius:5px;" onclick="go('search',4)">Lunar<br/>Storm</div>
+            <div class="book-cover" style="background:linear-gradient(135deg,#003366,#004080);width:80px;height:60px;border-radius:5px;" onclick="go('search',4)">The Great<br/>Gatsby</div>
+            <div class="book-cover" style="background:linear-gradient(135deg,#d4a017,#b8860b);width:80px;height:60px;border-radius:5px;" onclick="go('search',4)">Our Last<br/>Summer</div>
+          </div>
+          <div class="sec-h">Your book club</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="club-card" onclick="go('club',3)">
+              <div class="club-name">Fiction House Book Club</div>
+              <div class="club-meta">15 members · 10 books read</div>
+              <div class="club-cta">Create a poll</div>
+            </div>
+            <div style="background:var(--white);border-radius:12px;border:1.5px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;min-height:80px;" onclick="go('create-club',6)">
+              <div style="font-size:22px;color:var(--off);">+</div>
+              <div style="font-size:10px;font-weight:600;color:var(--off);">Create new club</div>
+            </div>
+          </div>
+        </div>
+        <div class="nb">
+          <div class="ni a" onclick="go('home',2)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni" onclick="go('search',4)"><span style="font-size:16px;">🔍</span>Search</div>
+          <div class="ni" onclick="go('notifs',7)"><span style="font-size:16px;">🔔</span>Notification</div>
+          <div class="ni" onclick="go('profile',8)"><span style="font-size:16px;">👤</span>Account</div>
+        </div>
+      </div>
+
+      <!-- ④ BOOK CLUB -->
+      <div class="sc" id="sc-club">
+        <div class="top">
+          <button class="back-b" onclick="go('home',2)">←</button>
+        </div>
+        <div class="body" style="padding-top:0;">
+          <div class="club-card" style="margin-bottom:14px;">
+            <div class="club-name" style="font-size:15px;">Fiction House Book Club</div>
+            <div style="display:flex;gap:16px;margin-top:6px;">
+              <span style="font-size:11px;color:rgba(1,44,70,.6);">10 Books read</span>
+              <span style="font-size:11px;color:rgba(1,44,70,.6);">15 members</span>
+            </div>
+            <div class="club-cta" onclick="go('poll',5)">CREATE A POLL</div>
+          </div>
+          <div class="sec-h">Activity <span style="float:right;font-size:10px;font-weight:500;color:var(--blue);cursor:pointer;">See All</span></div>
+          <div class="act-row"><div class="act-av">📖</div><div class="act-text"><strong>Thomas</strong> joined</div></div>
+          <div class="act-row"><div class="act-av">📢</div><div class="act-text"><strong>Michelle</strong> made an announcement</div></div>
+          <div class="act-row" style="margin-bottom:14px;"><div class="act-av">📚</div><div class="act-text"><strong>Rachael</strong> made a book suggestion</div></div>
+          <div class="sec-h">Books</div>
+          <div class="tab-row">
+            <div class="tab a">Currently reading</div>
+            <div class="tab" onclick="this.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('a'));this.classList.add('a');">Past reads</div>
+            <div class="tab" onclick="this.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('a'));this.classList.add('a');">Suggestions <span style="background:var(--yellow);color:var(--navy);font-size:8px;font-weight:700;padding:1px 5px;border-radius:10px;">3</span></div>
+          </div>
+          <div class="book-covers">
+            <div class="book-cover" style="background:linear-gradient(135deg,#003366,#004080);width:70px;height:100px;" onclick="go('search',4)">The Great<br/>Gatsby</div>
+            <div class="book-cover" style="background:linear-gradient(135deg,#d4a017,#b8860b);width:70px;height:100px;" onclick="go('search',4)">Our Last<br/>Summer</div>
+          </div>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',2)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni a"><span style="font-size:16px;">🔍</span>Search</div>
+          <div class="ni" onclick="go('notifs',7)"><span style="font-size:16px;">🔔</span>Notification</div>
+          <div class="ni" onclick="go('profile',8)"><span style="font-size:16px;">👤</span>Account</div>
+        </div>
+      </div>
+
+      <!-- ⑤ SEARCH -->
+      <div class="sc" id="sc-search">
+        <div class="top" style="padding-top:38px;">
+          <div class="search-bar">
+            <span style="font-size:15px;color:var(--off);">🔍</span>
+            <input placeholder="Search books, authors, clubs…"/>
+          </div>
+        </div>
+        <div class="body">
+          <div class="sec-h">Browse Genres</div>
+          <div style="display:flex;flex-wrap:wrap;margin-bottom:14px;">
+            <div class="chip sel">Fiction</div>
+            <div class="chip" onclick="this.classList.toggle('sel')">Fantasy</div>
+            <div class="chip" onclick="this.classList.toggle('sel')">Mystery</div>
+            <div class="chip" onclick="this.classList.toggle('sel')">Sci-Fi</div>
+            <div class="chip" onclick="this.classList.toggle('sel')">Romance</div>
+            <div class="chip" onclick="this.classList.toggle('sel')">Horror</div>
+            <div class="chip" onclick="this.classList.toggle('sel')">Classic</div>
+            <div class="chip" onclick="this.classList.toggle('sel')">Biography</div>
+          </div>
+          <div class="sec-h">Trending Now</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;gap:10px;background:var(--white);border-radius:11px;padding:10px;border:1px solid var(--border);cursor:pointer;" onclick="go('club',3)">
+              <div class="book-cover" style="background:linear-gradient(135deg,#8B1A1A,#c0392b);width:44px;height:60px;">One<br/>Bullet</div>
+              <div style="flex:1;"><div style="font-size:12px;font-weight:700;color:var(--ink);">One Bullet Away</div><div style="font-size:10px;color:var(--off);margin-top:2px;">Nathaniel Fick · Non-fiction</div><div style="font-size:10px;color:var(--blue);margin-top:4px;">★★★★☆ 4.2</div></div>
+            </div>
+            <div style="display:flex;gap:10px;background:var(--white);border-radius:11px;padding:10px;border:1px solid var(--border);cursor:pointer;" onclick="go('club',3)">
+              <div class="book-cover" style="background:linear-gradient(135deg,#003366,#004080);width:44px;height:60px;">The Great Gatsby</div>
+              <div style="flex:1;"><div style="font-size:12px;font-weight:700;color:var(--ink);">The Great Gatsby</div><div style="font-size:10px;color:var(--off);margin-top:2px;">F. Scott Fitzgerald · Classic</div><div style="font-size:10px;color:var(--blue);margin-top:4px;">★★★★★ 4.8</div></div>
+            </div>
+            <div style="display:flex;gap:10px;background:var(--white);border-radius:11px;padding:10px;border:1px solid var(--border);cursor:pointer;" onclick="go('club',3)">
+              <div class="book-cover" style="background:linear-gradient(135deg,#27ae60,#1e8449);width:44px;height:60px;">Evvi<br/>Drak</div>
+              <div style="flex:1;"><div style="font-size:12px;font-weight:700;color:var(--ink);">Evvi Drakstaf Over</div><div style="font-size:10px;color:var(--off);margin-top:2px;">Modern Fiction · 2024</div><div style="font-size:10px;color:var(--blue);margin-top:4px;">★★★★☆ 4.0</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',2)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni a"><span style="font-size:16px;">🔍</span>Search</div>
+          <div class="ni" onclick="go('notifs',7)"><span style="font-size:16px;">🔔</span>Notification</div>
+          <div class="ni" onclick="go('profile',8)"><span style="font-size:16px;">👤</span>Account</div>
+        </div>
+      </div>
+
+      <!-- ⑥ POLL -->
+      <div class="sc" id="sc-poll">
+        <div class="top">
+          <button class="back-b" onclick="go('club',3)">←</button>
+          <div style="font-size:15px;font-weight:700;color:var(--ink);">Book Club Poll</div>
+          <div style="font-size:11px;color:var(--off);margin-top:2px;">Fiction House Book Club · Vote for next read</div>
+        </div>
+        <div class="body">
+          <div style="background:var(--blue-light);border-radius:12px;padding:12px;margin-bottom:14px;">
+            <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:3px;">📊 Poll closes in 2 days</div>
+            <div style="font-size:12px;color:var(--ink);">What should we read next month?</div>
+          </div>
+          <div class="poll-opt sel" onclick="selPoll(this)">
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--ink);">The Great Gatsby</div><div style="font-size:10px;color:var(--off);">F. Scott Fitzgerald</div></div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><span style="font-size:11px;font-weight:700;color:var(--blue);">48%</span><div class="poll-bar" style="width:60px;"><div class="poll-fill" style="width:48%;"></div></div></div>
+          </div>
+          <div class="poll-opt" onclick="selPoll(this)">
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--ink);">One Bullet Away</div><div style="font-size:10px;color:var(--off);">Nathaniel Fick</div></div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><span style="font-size:11px;font-weight:700;color:var(--blue);">32%</span><div class="poll-bar" style="width:60px;"><div class="poll-fill" style="width:32%;"></div></div></div>
+          </div>
+          <div class="poll-opt" onclick="selPoll(this)">
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--ink);">Our Last Summer</div><div style="font-size:10px;color:var(--off);">Modern Fiction</div></div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><span style="font-size:11px;font-weight:700;color:var(--blue);">20%</span><div class="poll-bar" style="width:60px;"><div class="poll-fill" style="width:20%;"></div></div></div>
+          </div>
+          <div style="font-size:11px;color:var(--off);text-align:center;margin:10px 0;">15 votes · You voted for The Great Gatsby</div>
+          <button class="btn-b" onclick="go('club',3)">View Club →</button>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',2)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni" onclick="go('search',4)"><span style="font-size:16px;">🔍</span>Search</div>
+          <div class="ni" onclick="go('notifs',7)"><span style="font-size:16px;">🔔</span>Notification</div>
+          <div class="ni" onclick="go('profile',8)"><span style="font-size:16px;">👤</span>Account</div>
+        </div>
+      </div>
+
+      <!-- ⑦ CREATE CLUB -->
+      <div class="sc" id="sc-create-club">
+        <div class="top">
+          <button class="back-b" onclick="go('home',2)">←</button>
+          <div style="font-size:15px;font-weight:700;color:var(--blue);">Create your book club</div>
+        </div>
+        <div class="body">
+          <span class="lbl">Book club name</span>
+          <input class="inp" placeholder="e.g. Fiction House Book Club"/>
+          <span class="lbl">Add Friends <span style="color:var(--blue);">Email</span></span>
+          <input class="inp" placeholder="friend@email.com" type="email"/>
+          <span class="lbl">Select a book</span>
+          <div style="display:flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:10px 13px;margin-bottom:16px;">
+            <input style="border:none;outline:none;flex:1;font-size:13px;font-family:'DM Sans',sans-serif;background:transparent;" placeholder="Search for a book…"/>
+            <span style="color:var(--off);font-size:18px;cursor:pointer;">✕</span>
+          </div>
+          <button class="btn-b" onclick="go('club',3)">Start your book club →</button>
+          <div style="text-align:center;margin-top:14px;font-size:12px;color:var(--off);">Want to join a book club? <span style="color:var(--blue);font-weight:600;cursor:pointer;">Enter code here</span></div>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',2)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni" onclick="go('search',4)"><span style="font-size:16px;">🔍</span>Search</div>
+          <div class="ni" onclick="go('notifs',7)"><span style="font-size:16px;">🔔</span>Notification</div>
+          <div class="ni" onclick="go('profile',8)"><span style="font-size:16px;">👤</span>Account</div>
+        </div>
+      </div>
+
+      <!-- ⑧ NOTIFICATIONS -->
+      <div class="sc" id="sc-notifs">
+        <div class="top" style="padding-top:38px;">
+          <div style="font-size:15px;font-weight:700;color:var(--ink);">Notifications</div>
+        </div>
+        <div class="body">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--off);margin-bottom:8px;">From your book clubs</div>
+          <div class="notif"><div class="notif-av">📖</div><div style="flex:1;"><div style="font-size:12px;color:var(--ink);"><strong>Fiction House</strong> — Thomas joined the club</div><div style="font-size:10px;color:var(--off);margin-top:2px;">2 mins ago</div></div><div class="notif-dot"></div></div>
+          <div class="notif"><div class="notif-av">📊</div><div style="flex:1;"><div style="font-size:12px;color:var(--ink);"><strong>Poll closed</strong> — "The Great Gatsby" won with 48%</div><div style="font-size:10px;color:var(--off);margin-top:2px;">1 hour ago</div></div></div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--off);margin:12px 0 8px;">New reads</div>
+          <div class="notif"><div class="notif-av">📚</div><div style="flex:1;"><div style="font-size:12px;color:var(--ink);"><strong>Rachael</strong> suggested "Our Last Summer"</div><div style="font-size:10px;color:var(--off);margin-top:2px;">Yesterday</div></div></div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--off);margin:12px 0 8px;">Recommendations</div>
+          <div class="notif"><div class="notif-av">⭐</div><div style="flex:1;"><div style="font-size:12px;color:var(--ink);">Based on your reading: <strong>"One Bullet Away"</strong></div><div style="font-size:10px;color:var(--blue);margin-top:2px;cursor:pointer;">View book →</div></div></div>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',2)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni" onclick="go('search',4)"><span style="font-size:16px;">🔍</span>Search</div>
+          <div class="ni a"><span style="font-size:16px;">🔔</span>Notification</div>
+          <div class="ni" onclick="go('profile',8)"><span style="font-size:16px;">👤</span>Account</div>
+        </div>
+      </div>
+
+      <!-- ⑨ PROFILE -->
+      <div class="sc" id="sc-profile">
+        <div class="top" style="background:var(--blue);padding-top:44px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:52px;height:52px;background:var(--yellow);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--navy);">SA</div>
+            <div><div style="font-size:15px;font-weight:700;color:#fff;">Sam Adebayo</div><div style="font-size:11px;color:rgba(255,255,255,.6);">Advanced Reader · Romance · Fiction</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:14px;border-top:1px solid rgba(255,255,255,.15);padding-top:12px;text-align:center;">
+            <div><div style="font-size:16px;font-weight:700;color:var(--yellow);">24</div><div style="font-size:9px;color:rgba(255,255,255,.5);letter-spacing:.06em;text-transform:uppercase;">Books Read</div></div>
+            <div style="border-left:1px solid rgba(255,255,255,.15);border-right:1px solid rgba(255,255,255,.15);">
+              <div style="font-size:16px;font-weight:700;color:var(--yellow);">2</div><div style="font-size:9px;color:rgba(255,255,255,.5);letter-spacing:.06em;text-transform:uppercase;">Book Clubs</div>
+            </div>
+            <div><div style="font-size:16px;font-weight:700;color:var(--yellow);">8</div><div style="font-size:9px;color:rgba(255,255,255,.5);letter-spacing:.06em;text-transform:uppercase;">Polls Voted</div></div>
+          </div>
+        </div>
+        <div class="body">
+          <div class="sec-h" style="margin-top:4px;">Currently Reading</div>
+          <div style="display:flex;gap:10px;background:var(--white);border-radius:11px;padding:10px;border:1px solid var(--border);margin-bottom:12px;">
+            <div class="book-cover" style="background:linear-gradient(135deg,#003366,#004080);width:44px;height:60px;">The Great Gatsby</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:700;color:var(--ink);">The Great Gatsby</div><div style="font-size:10px;color:var(--off);margin-top:2px;">Page 142 of 208</div><div style="background:#e0e0e0;border-radius:3px;height:6px;margin-top:6px;"><div style="width:68%;height:100%;background:var(--blue);border-radius:3px;"></div></div><div style="font-size:9px;color:var(--off);margin-top:3px;">68% complete</div></div>
+          </div>
+          <div class="sec-h">Settings</div>
+          <div style="display:flex;flex-direction:column;gap:0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);cursor:pointer;font-size:13px;color:var(--ink);">Edit Profile <span style="color:var(--off);font-size:11px;">›</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);cursor:pointer;font-size:13px;color:var(--ink);">🔔 Notifications <span style="color:var(--off);font-size:11px;">On ›</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);cursor:pointer;font-size:13px;color:var(--ink);">🔒 Security <span style="color:var(--off);font-size:11px;">›</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;cursor:pointer;font-size:13px;color:#c0392b;">Log Out</div>
+          </div>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',2)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni" onclick="go('search',4)"><span style="font-size:16px;">🔍</span>Search</div>
+          <div class="ni" onclick="go('notifs',7)"><span style="font-size:16px;">🔔</span>Notification</div>
+          <div class="ni a"><span style="font-size:16px;">👤</span>Account</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SIDE NOTES -->
+  <div class="notes">
+    <div class="nc">
+      <div class="nl">About BookLib</div>
+      <div class="nt">A social reading app where users create &amp; join book clubs, track reading progress, vote in book polls, and discover new reads — all in one place. Inspired by the concept of discovery.</div>
+    </div>
+    <div class="nc">
+      <div class="nl">Core Flow</div>
+      <div class="fl"><div class="fn">1</div><div class="ft">Splash → Onboarding (reading level, genres)</div></div>
+      <div class="fl"><div class="fn">2</div><div class="ft">Home — Trending, Currently Reading, Book Clubs</div></div>
+      <div class="fl"><div class="fn">3</div><div class="ft">Book Club — Activity feed, Books, Create Poll</div></div>
+      <div class="fl"><div class="fn">4</div><div class="ft">Search — Browse by genre, find books &amp; clubs</div></div>
+      <div class="fl"><div class="fn">5</div><div class="ft">Poll — Vote &amp; see live results</div></div>
+      <div class="fl"><div class="fn">6</div><div class="ft">Create Club → Notifications → Profile</div></div>
+    </div>
+    <div class="nc">
+      <div class="nl">Competitive Audit</div>
+      <div class="comp-row"><span style="color:rgba(255,255,255,.5);">Feature</span><span style="color:var(--yellow);font-size:10px;font-weight:700;">BookLib</span></div>
+      <div class="comp-row"><span style="color:rgba(255,255,255,.4);">User-friendly UI</span><span style="color:#4caf50;font-size:12px;">✓</span></div>
+      <div class="comp-row"><span style="color:rgba(255,255,255,.4);">Unlimited genres</span><span style="color:#4caf50;font-size:12px;">✓</span></div>
+      <div class="comp-row"><span style="color:rgba(255,255,255,.4);">Reading tracker</span><span style="color:#4caf50;font-size:12px;">✓</span></div>
+      <div class="comp-row"><span style="color:rgba(255,255,255,.4);">Club finder</span><span style="color:#4caf50;font-size:12px;">✓</span></div>
+      <div class="comp-row"><span style="color:rgba(255,255,255,.4);">Recommendation AI</span><span style="color:#4caf50;font-size:12px;">✓</span></div>
+      <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:6px;">BookLib outperforms Bookclubz, Bookship &amp; Novellic on all 5 criteria</div>
+    </div>
+    <div class="nc">
+      <div class="nl">Design System</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;border-radius:3px;background:#0067A2;"></div><div style="font-size:11px;color:rgba(255,255,255,.45);">Blue #0067A2</div></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;border-radius:3px;background:#EDBD00;"></div><div style="font-size:11px;color:rgba(255,255,255,.45);">Yellow #EDBD00</div></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;border-radius:3px;background:#012C46;"></div><div style="font-size:11px;color:rgba(255,255,255,.45);">Navy #012C46</div></div>
+        <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:3px;">Typeface: Satoshi (Syne in prototype)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(id,idx){
+  document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));
+  var el=document.getElementById('sc-'+id);
+  if(el)el.classList.add('on');
+  document.querySelectorAll('.sb').forEach((b,i)=>b.classList.toggle('on',i===idx));
+}
+function selLevel(id){
+  ['lv1','lv2','lv3'].forEach(l=>{var el=document.getElementById(l);if(el)el.classList.remove('sel');});
+  var el=document.getElementById(id);if(el)el.classList.add('sel');
+}
+function selPoll(el){
+  document.querySelectorAll('.poll-opt').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+}
+</script>
+</body>
+</html>

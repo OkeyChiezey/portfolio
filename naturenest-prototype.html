@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Nature Nest — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green:#2d7a3a;
+  --green2:#3a9c4a;
+  --green-light:#4db860;
+  --green-bg:#e8f5ea;
+  --green-dark:#1a4a22;
+  --dark:#0d1a0f;
+  --surface:#1a2e1c;
+  --surface2:#243828;
+  --off:#6b8a6e;
+  --white:#ffffff;
+  --cream:#f5f9f5;
+  --sand:#f0ede8;
+}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:linear-gradient(135deg,#060d07 0%,#0d1a0f 50%,#060d07 100%);
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:2rem 1rem 4rem;
+}
+.proto-header{width:100%;max-width:980px;display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;padding:0 .5rem;}
+.proto-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;color:#fff;letter-spacing:-0.02em;}
+.proto-logo span{color:var(--green-light);}
+.proto-badge{font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.35);background:rgba(255,255,255,.06);padding:.4rem .9rem;border-radius:20px;border:1px solid rgba(255,255,255,.09);}
+.stage-row{width:100%;max-width:980px;display:flex;gap:4px;margin-bottom:1.5rem;flex-wrap:wrap;}
+.sb{flex:1;min-width:70px;padding:5px 5px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);border-radius:7px;font-size:.63rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.35);cursor:pointer;transition:all .2s;text-align:center;font-family:'DM Sans',sans-serif;}
+.sb.on{background:rgba(77,184,96,.2);border-color:rgba(77,184,96,.5);color:#7de090;}
+.sb:hover:not(.on){background:rgba(255,255,255,.07);color:rgba(255,255,255,.6);}
+.wrap{display:flex;gap:24px;align-items:flex-start;justify-content:center;flex-wrap:wrap;}
+
+/* Phone */
+.phone{width:295px;flex-shrink:0;background:#080e09;border-radius:44px;padding:11px;box-shadow:0 0 0 1px rgba(255,255,255,.06),0 40px 80px rgba(0,0,0,.7);}
+.phone-inner{width:100%;height:610px;background:var(--cream);border-radius:34px;overflow:hidden;position:relative;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:88px;height:26px;background:#080e09;border-radius:0 0 14px 14px;z-index:20;}
+.sc{position:absolute;inset:0;display:none;flex-direction:column;background:var(--cream);}
+.sc.on{display:flex;}
+
+/* shared */
+.top{padding:36px 18px 12px;background:var(--cream);flex-shrink:0;}
+.body{flex:1;overflow-y:auto;padding:12px 18px 20px;}
+.body::-webkit-scrollbar{display:none;}
+.nb{display:flex;background:#fff;padding:10px 0 6px;border-top:1px solid rgba(45,122,58,.12);flex-shrink:0;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-size:9px;color:#aaa;font-weight:500;}
+.ni.a{color:var(--green);}
+.back-b{width:28px;height:28px;background:rgba(45,122,58,.1);border:none;border-radius:8px;cursor:pointer;color:var(--green);font-size:14px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;}
+.inp{width:100%;padding:11px 13px;background:#fff;border:1.5px solid rgba(45,122,58,.2);border-radius:10px;font-size:13px;font-family:'DM Sans',sans-serif;margin-bottom:10px;box-sizing:border-box;outline:none;color:#111;}
+.inp:focus{border-color:var(--green2);}
+.inp::placeholder{color:#aaa;}
+.lbl{font-size:11px;font-weight:600;color:var(--off);margin-bottom:4px;letter-spacing:.04em;display:block;}
+.btn-g{width:100%;padding:13px;background:var(--green);color:#fff;border:none;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s;}
+.btn-g:hover{background:var(--green-dark);}
+.btn-out{width:100%;padding:13px;background:transparent;color:var(--green);border:1.5px solid var(--green);border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px;}
+.sec-h{font-size:12px;font-weight:700;color:#111;margin-bottom:10px;}
+.tag{display:inline-flex;align-items:center;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;margin:0 5px 7px 0;transition:all .2s;}
+.tag.sel{background:var(--green);color:#fff;}
+.tag.unsel{background:#fff;border:1.5px solid rgba(45,122,58,.25);color:var(--green);}
+
+/* splash */
+.splash-bg{flex:1;background:var(--dark);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:2rem;position:relative;overflow:hidden;}
+.splash-leaf{position:absolute;font-size:8rem;opacity:.04;}
+
+/* onboarding grower profile */
+.profile-card{background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;border:1.5px solid rgba(45,122,58,.15);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;}
+.profile-card:hover,.profile-card.sel{border-color:var(--green);background:var(--green-bg);}
+.profile-icon{width:38px;height:38px;border-radius:10px;background:var(--green-bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+
+/* home */
+.plantvisor-bar{background:var(--green);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px;cursor:pointer;}
+.rec-scroll{display:flex;gap:8px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px;}
+.rec-scroll::-webkit-scrollbar{display:none;}
+.rec-card{min-width:80px;height:72px;background:#fff;border-radius:11px;border:1px solid rgba(45,122,58,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;flex-shrink:0;transition:all .2s;}
+.rec-card:hover{border-color:var(--green2);background:var(--green-bg);}
+.rec-card-img{font-size:20px;}
+.rec-card-lbl{font-size:9px;font-weight:600;color:#555;text-align:center;line-height:1.2;padding:0 4px;}
+.plant-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.plant-card{background:#fff;border-radius:12px;overflow:hidden;border:1px solid rgba(45,122,58,.1);cursor:pointer;transition:all .2s;}
+.plant-card:hover{border-color:var(--green2);transform:translateY(-2px);}
+.plant-img{height:80px;background:linear-gradient(135deg,#e8f5ea,#c8e6cb);display:flex;align-items:center;justify-content:center;font-size:2rem;}
+.plant-info{padding:8px 10px;}
+.plant-name{font-size:11px;font-weight:700;color:#111;}
+.plant-type{font-size:10px;color:var(--off);margin-top:1px;}
+.care-bar{height:4px;background:#e8f5ea;border-radius:2px;margin-top:6px;}
+.care-fill{height:4px;border-radius:2px;background:var(--green2);}
+.water-badge{font-size:9px;color:var(--green);font-weight:600;margin-top:4px;}
+
+/* search / identify */
+.id-box{background:#fff;border:2px dashed rgba(45,122,58,.25);border-radius:14px;padding:28px 20px;text-align:center;margin-bottom:14px;cursor:pointer;transition:all .2s;}
+.id-box:hover{border-color:var(--green);background:var(--green-bg);}
+.id-result{background:#fff;border-radius:14px;padding:14px;border:1.5px solid var(--green-bg);margin-bottom:10px;}
+
+/* expert chat */
+.msg{max-width:80%;padding:10px 13px;border-radius:12px;font-size:12px;line-height:1.5;margin-bottom:8px;}
+.msg-them{background:#fff;color:#111;border-bottom-left-radius:3px;align-self:flex-start;border:1px solid rgba(0,0,0,.06);}
+.msg-me{background:var(--green);color:#fff;border-bottom-right-radius:3px;align-self:flex-end;}
+.msgs{display:flex;flex-direction:column;}
+.chat-inp{display:flex;gap:8px;padding:10px 14px;background:#fff;border-top:1px solid rgba(45,122,58,.1);flex-shrink:0;}
+.chat-inp input{flex:1;border:1.5px solid rgba(45,122,58,.2);border-radius:20px;padding:8px 14px;font-size:12px;outline:none;font-family:'DM Sans',sans-serif;}
+.chat-send{width:34px;height:34px;background:var(--green);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;}
+
+/* reminders */
+.remind-card{background:#fff;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:8px;border:1px solid rgba(45,122,58,.1);}
+.remind-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.done-check{width:22px;height:22px;border-radius:50%;border:2px solid rgba(45,122,58,.3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.done-check.done{background:var(--green);border-color:var(--green);color:#fff;}
+
+/* notes */
+.notes{width:260px;flex-shrink:0;}
+.nc{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:13px;padding:14px;margin-bottom:10px;}
+.nl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7de090;margin-bottom:7px;}
+.nt{font-size:12px;color:rgba(255,255,255,.5);line-height:1.6;}
+.fl{display:flex;gap:7px;margin-bottom:6px;align-items:flex-start;}
+.fn{width:18px;height:18px;border-radius:50%;background:rgba(77,184,96,.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#7de090;flex-shrink:0;margin-top:1px;}
+.ft{font-size:12px;color:rgba(255,255,255,.45);line-height:1.45;}
+.swatch-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+@media(max-width:700px){.notes{display:none;}.wrap{gap:0;}}
+</style>
+</head>
+<body>
+
+<div class="proto-header">
+  <div class="proto-logo">Nature <span>nest.</span></div>
+  <div class="proto-badge">Interactive Prototype · UI/UX Case Study</div>
+</div>
+
+<div class="stage-row">
+  <button class="sb on"  onclick="go('splash',0)">① Splash</button>
+  <button class="sb"     onclick="go('auth',1)">② Auth</button>
+  <button class="sb"     onclick="go('profile-pick',2)">③ Profile</button>
+  <button class="sb"     onclick="go('home',3)">④ Home</button>
+  <button class="sb"     onclick="go('identify',4)">⑤ Identify</button>
+  <button class="sb"     onclick="go('result',5)">⑥ Result</button>
+  <button class="sb"     onclick="go('expert',6)">⑦ Expert</button>
+  <button class="sb"     onclick="go('plant-detail',7)">⑧ Care Guide</button>
+  <button class="sb"     onclick="go('reminders',8)">⑨ Reminders</button>
+  <button class="sb"     onclick="go('community',9)">⑩ Community</button>
+</div>
+
+<div class="wrap">
+  <div class="phone">
+    <div class="phone-inner">
+      <div class="notch"></div>
+
+      <!-- ① SPLASH -->
+      <div class="sc on" id="sc-splash">
+        <div class="splash-bg">
+          <div class="splash-leaf" style="top:-20px;left:-20px;">🌿</div>
+          <div class="splash-leaf" style="bottom:-20px;right:-20px;">🍃</div>
+          <div style="font-size:3.5rem;margin-bottom:4px;position:relative;z-index:1;">🌱</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;color:#fff;letter-spacing:-.02em;position:relative;z-index:1;">Nature <span style="color:#4db860;">nest.</span></div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase;position:relative;z-index:1;">The App That Nurtures Your Passion for Plants</div>
+          <div style="position:absolute;bottom:44px;left:20px;right:20px;">
+            <button class="btn-g" onclick="go('auth',1)">Get Started</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② AUTH -->
+      <div class="sc" id="sc-auth">
+        <div style="flex:1;background:var(--dark);display:flex;flex-direction:column;padding:44px 24px 0;overflow-y:auto;">
+          <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:4px;">Sign In</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:24px;">Your Plants' Best Friend in Your Pocket</div>
+          <span class="lbl" style="color:rgba(255,255,255,.5);">Username</span>
+          <input class="inp" placeholder="username" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12);color:#fff;"/>
+          <span class="lbl" style="color:rgba(255,255,255,.5);">Password</span>
+          <input class="inp" type="password" placeholder="••••••••" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12);color:#fff;"/>
+          <div style="display:flex;justify-content:space-between;margin-bottom:20px;font-size:11px;">
+            <label style="display:flex;align-items:center;gap:5px;color:rgba(255,255,255,.5);cursor:pointer;"><input type="checkbox" checked style="accent-color:var(--green);"/> Remember me</label>
+            <span style="color:var(--green-light);cursor:pointer;">Forgot password?</span>
+          </div>
+          <button class="btn-g" onclick="go('profile-pick',2)">Log in</button>
+          <div style="display:flex;gap:8px;margin:14px 0;align-items:center;"><div style="flex:1;height:1px;background:rgba(255,255,255,.1);"></div><span style="font-size:10px;color:rgba(255,255,255,.3);">Sign in with your account</span><div style="flex:1;height:1px;background:rgba(255,255,255,.1);"></div></div>
+          <div style="display:flex;gap:8px;">
+            <button style="flex:1;padding:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;" onclick="go('profile-pick',2)">🌐 Google</button>
+            <button style="flex:1;padding:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;" onclick="go('profile-pick',2)">📘 Facebook</button>
+            <button style="flex:1;padding:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;" onclick="go('profile-pick',2)">🍎 Apple</button>
+          </div>
+          <div style="text-align:center;margin:14px 0;font-size:11px;color:rgba(255,255,255,.4);">Don't have an account? <span style="color:var(--green-light);cursor:pointer;" onclick="go('profile-pick',2)">Sign Up</span></div>
+        </div>
+      </div>
+
+      <!-- ③ GROWER PROFILE PICK -->
+      <div class="sc" id="sc-profile-pick">
+        <div class="top" style="background:var(--cream);">
+          <div style="font-size:16px;font-weight:700;color:#111;margin-top:8px;">Hi Jess 👋</div>
+          <div style="font-size:11px;color:var(--off);margin-top:2px;">Pick your grower profile</div>
+        </div>
+        <div class="body">
+          <div style="text-align:center;font-size:3rem;margin-bottom:10px;">🌴</div>
+          <div class="profile-card sel" id="pc1" onclick="selectProfile(1)">
+            <div class="profile-icon">🏙️</div>
+            <div><div style="font-size:12px;font-weight:700;color:#111;">Plant Enthusiast</div><div style="font-size:10px;color:var(--off);">Experienced with diverse collection</div></div>
+          </div>
+          <div class="profile-card" id="pc2" onclick="selectProfile(2)">
+            <div class="profile-icon">🌿</div>
+            <div><div style="font-size:12px;font-weight:700;color:#111;">Urban Gardener</div><div style="font-size:10px;color:var(--off);">City apartment indoor plants</div></div>
+          </div>
+          <div class="profile-card" id="pc3" onclick="selectProfile(3)">
+            <div class="profile-icon">👍</div>
+            <div><div style="font-size:12px;font-weight:700;color:#111;">Green Thumb Guru</div><div style="font-size:10px;color:var(--off);">Advanced techniques &amp; experiments</div></div>
+          </div>
+          <div class="profile-card" id="pc4" onclick="selectProfile(4)">
+            <div class="profile-icon">🌻</div>
+            <div><div style="font-size:12px;font-weight:700;color:#111;">Blossom Buddy</div><div style="font-size:10px;color:var(--off);">Novice, eager to learn</div></div>
+          </div>
+          <div class="profile-card" id="pc5" onclick="selectProfile(5)">
+            <div class="profile-icon">🔬</div>
+            <div><div style="font-size:12px;font-weight:700;color:#111;">Botanical Explorer</div><div style="font-size:10px;color:var(--off);">Scientific approach to plant care</div></div>
+          </div>
+          <button class="btn-g" style="margin-top:8px;" onclick="go('home',3)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- ④ HOME -->
+      <div class="sc" id="sc-home">
+        <div class="top">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-top:8px;">
+            <div>
+              <div style="font-size:11px;color:var(--off);font-weight:600;">Good morning 🌤</div>
+              <div style="font-size:16px;font-weight:700;color:#111;">Jess's Garden</div>
+            </div>
+            <div style="width:30px;height:30px;background:var(--green-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;" onclick="go('community',9)">👤</div>
+          </div>
+        </div>
+        <div class="body">
+          <!-- Plantvisor CTA -->
+          <div class="plantvisor-bar" onclick="go('expert',6)">
+            <div style="width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🧑‍🌾</div>
+            <div style="flex:1;">
+              <div style="font-size:12px;font-weight:700;color:#fff;">Connect with your Plantvisor</div>
+              <div style="font-size:10px;color:rgba(255,255,255,.7);">Lisa · Growing and plant disease expert</div>
+            </div>
+            <div style="color:rgba(255,255,255,.7);font-size:14px;">›</div>
+          </div>
+
+          <!-- Recommended topics -->
+          <div class="sec-h">Recommended</div>
+          <div class="rec-scroll">
+            <div class="rec-card" onclick="go('plant-detail',7)"><div class="rec-card-img">🌱</div><div class="rec-card-lbl">Growing in Pots</div></div>
+            <div class="rec-card" onclick="go('identify',4)"><div class="rec-card-img">🍂</div><div class="rec-card-lbl">Yellow Leaves?</div></div>
+            <div class="rec-card" onclick="go('plant-detail',7)"><div class="rec-card-img">🔬</div><div class="rec-card-lbl">Microplants</div></div>
+            <div class="rec-card" onclick="go('reminders',8)"><div class="rec-card-img">💧</div><div class="rec-card-lbl">Water Reminders</div></div>
+          </div>
+
+          <!-- Trending plants -->
+          <div class="sec-h">Trending Plants for You</div>
+          <div class="plant-grid">
+            <div class="plant-card" onclick="go('plant-detail',7)">
+              <div class="plant-img">🌵</div>
+              <div class="plant-info">
+                <div class="plant-name">Succulent</div>
+                <div class="plant-type">Low maintenance</div>
+                <div class="care-bar"><div class="care-fill" style="width:85%;"></div></div>
+                <div class="water-badge">💧 Every 14 days</div>
+              </div>
+            </div>
+            <div class="plant-card" onclick="go('plant-detail',7)">
+              <div class="plant-img">🎋</div>
+              <div class="plant-info">
+                <div class="plant-name">Bamboo</div>
+                <div class="plant-type">Fast grower</div>
+                <div class="care-bar"><div class="care-fill" style="width:60%;"></div></div>
+                <div class="water-badge">💧 Every 3 days</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Health summary -->
+          <div style="background:#fff;border-radius:14px;padding:14px;margin-top:12px;border:1px solid rgba(45,122,58,.1);">
+            <div style="font-size:11px;font-weight:700;color:#111;margin-bottom:6px;">Today's Plant Health</div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="font-size:2rem;font-weight:800;color:var(--green);">60%</div>
+              <div style="flex:1;">
+                <div style="height:8px;background:var(--green-bg);border-radius:4px;overflow:hidden;"><div style="width:60%;height:100%;background:var(--green2);border-radius:4px;"></div></div>
+                <div style="font-size:10px;color:var(--off);margin-top:4px;">3 plants need attention</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="nb">
+          <div class="ni a" onclick="go('home',3)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni" onclick="go('identify',4)"><span style="font-size:16px;">🔍</span>Search</div>
+          <div class="ni" onclick="go('reminders',8)"><span style="font-size:16px;">🔔</span>Reminders</div>
+          <div class="ni" onclick="go('community',9)"><span style="font-size:16px;">👤</span>Account</div>
+        </div>
+      </div>
+
+      <!-- ⑤ IDENTIFY PLANT -->
+      <div class="sc" id="sc-identify">
+        <div class="top">
+          <button class="back-b" onclick="go('home',3)">←</button>
+          <div style="font-size:15px;font-weight:700;color:#111;">Identify the Plant</div>
+          <div style="font-size:11px;color:var(--off);margin-top:2px;">Snap or upload a photo to diagnose issues</div>
+        </div>
+        <div class="body">
+          <div class="id-box" onclick="go('result',5)">
+            <div style="font-size:3rem;margin-bottom:8px;">📷</div>
+            <div style="font-size:13px;font-weight:700;color:#111;">Take a Photo</div>
+            <div style="font-size:11px;color:var(--off);margin-top:3px;">Point at your plant to identify it</div>
+          </div>
+          <div style="text-align:center;font-size:11px;color:var(--off);margin-bottom:12px;">— or —</div>
+          <button class="btn-out" onclick="go('result',5)">📁 Upload from Gallery</button>
+          <div style="margin-top:16px;">
+            <div class="sec-h">Recent Identifications</div>
+            <div style="display:flex;flex-direction:column;gap:7px;">
+              <div style="background:#fff;border-radius:11px;padding:10px 12px;display:flex;align-items:center;gap:10px;border:1px solid rgba(45,122,58,.1);cursor:pointer;" onclick="go('result',5)">
+                <div style="font-size:22px;">🌿</div>
+                <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:#111;">Pothos (Epipremnum)</div><div style="font-size:10px;color:var(--off);">Identified 2 days ago · 97% match</div></div>
+                <div style="font-size:10px;font-weight:600;color:var(--green);background:var(--green-bg);padding:3px 8px;border-radius:10px;">Healthy</div>
+              </div>
+              <div style="background:#fff;border-radius:11px;padding:10px 12px;display:flex;align-items:center;gap:10px;border:1px solid rgba(45,122,58,.1);cursor:pointer;" onclick="go('result',5)">
+                <div style="font-size:22px;">🌵</div>
+                <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:#111;">Barrel Cactus</div><div style="font-size:10px;color:var(--off);">Identified 1 week ago · 94% match</div></div>
+                <div style="font-size:10px;font-weight:600;color:#e67e22;background:#fef3e2;padding:3px 8px;border-radius:10px;">Needs water</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',3)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni a"><span style="font-size:16px;">🔍</span>Search</div>
+          <div class="ni" onclick="go('reminders',8)"><span style="font-size:16px;">🔔</span>Reminders</div>
+          <div class="ni" onclick="go('community',9)"><span style="font-size:16px;">👤</span>Account</div>
+        </div>
+      </div>
+
+      <!-- ⑥ RESULT -->
+      <div class="sc" id="sc-result">
+        <div class="top">
+          <button class="back-b" onclick="go('identify',4)">←</button>
+          <div style="font-size:15px;font-weight:700;color:#111;">Plant Identified</div>
+        </div>
+        <div class="body">
+          <div style="background:linear-gradient(135deg,#e8f5ea,#c8e6cb);border-radius:16px;height:120px;display:flex;align-items:center;justify-content:center;font-size:4rem;margin-bottom:12px;">🌿</div>
+          <div class="id-result">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+              <div><div style="font-size:15px;font-weight:700;color:#111;">Pothos</div><div style="font-size:11px;color:var(--off);">Epipremnum aureum</div></div>
+              <div style="background:var(--green-bg);color:var(--green);font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;">97% match</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <div style="display:flex;justify-content:space-between;font-size:11px;padding:5px 0;border-bottom:1px solid #f0f0f0;"><span style="color:var(--off);">Light</span><span style="font-weight:600;color:#111;">Low to bright indirect</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;padding:5px 0;border-bottom:1px solid #f0f0f0;"><span style="color:var(--off);">Water</span><span style="font-weight:600;color:#111;">Every 7–10 days</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;padding:5px 0;"><span style="color:var(--off);">Humidity</span><span style="font-weight:600;color:#111;">50–70%</span></div>
+            </div>
+          </div>
+          <div style="background:#fff3cd;border-radius:12px;padding:12px;border:1px solid #ffd54f;margin-bottom:12px;">
+            <div style="font-size:11px;font-weight:700;color:#856404;margin-bottom:3px;">⚠️ Issue Detected</div>
+            <div style="font-size:11px;color:#6b5300;line-height:1.5;">Yellowing leaves detected. Likely overwatering or low light. Reduce watering frequency and move to a brighter location.</div>
+          </div>
+          <button class="btn-g" onclick="go('expert',6)">💬 Ask a Plant Expert</button>
+          <button class="btn-out" style="margin-top:8px;" onclick="go('plant-detail',7)">📖 View Full Care Guide</button>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',3)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni a"><span style="font-size:16px;">🔍</span>Search</div>
+          <div class="ni" onclick="go('reminders',8)"><span style="font-size:16px;">🔔</span>Reminders</div>
+          <div class="ni" onclick="go('community',9)"><span style="font-size:16px;">👤</span>Account</div>
+        </div>
+      </div>
+
+      <!-- ⑦ EXPERT CHAT -->
+      <div class="sc" id="sc-expert">
+        <div class="top">
+          <button class="back-b" onclick="go('home',3)">←</button>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:36px;height:36px;background:var(--green-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;">🧑‍🌾</div>
+            <div><div style="font-size:13px;font-weight:700;color:#111;">Lisa</div><div style="font-size:10px;color:var(--green);font-weight:600;">● Online · Plant disease expert</div></div>
+          </div>
+        </div>
+        <div class="body" style="background:#f8faf8;">
+          <div class="msgs">
+            <div class="msg msg-them">Hi Jess, how are you? 🌿 How's the progress been since we spoke?</div>
+            <div class="msg msg-me">Hi Lisa, thanks for your advice, it worked! The leaves are beginning to turn green. 🎉</div>
+            <div class="msg msg-them">That's wonderful! We can schedule a video call next week to see how your plant is doing in person.</div>
+            <div class="msg msg-me">That sounds great! What should I do about the yellow patches I'm still seeing?</div>
+            <div class="msg msg-them">Try reducing watering to once every 10 days and move it closer to the window — but avoid direct harsh sunlight. The yellow patches should fade within 2–3 weeks. 🌞</div>
+          </div>
+        </div>
+        <div class="chat-inp">
+          <input placeholder="Type a message…"/>
+          <button class="chat-send">→</button>
+        </div>
+      </div>
+
+      <!-- ⑧ CARE GUIDE -->
+      <div class="sc" id="sc-plant-detail">
+        <div class="top">
+          <button class="back-b" onclick="go('home',3)">←</button>
+          <div style="font-size:15px;font-weight:700;color:#111;">Care Guide</div>
+        </div>
+        <div class="body">
+          <div style="background:linear-gradient(135deg,#e8f5ea,#c8e6cb);border-radius:14px;height:100px;display:flex;align-items:center;justify-content:center;font-size:3.5rem;margin-bottom:12px;">🌿</div>
+          <div style="font-size:16px;font-weight:700;color:#111;">Pothos (Epipremnum)</div>
+          <div style="font-size:11px;color:var(--off);margin:2px 0 12px;">Tropical · Air purifying · Fast growing</div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+            <div style="background:#fff;border-radius:11px;padding:10px;text-align:center;border:1px solid rgba(45,122,58,.1);">
+              <div style="font-size:18px;">☀️</div>
+              <div style="font-size:10px;font-weight:600;color:var(--off);margin-top:3px;">Light</div>
+              <div style="font-size:11px;font-weight:700;color:#111;">Indirect</div>
+            </div>
+            <div style="background:#fff;border-radius:11px;padding:10px;text-align:center;border:1px solid rgba(45,122,58,.1);">
+              <div style="font-size:18px;">💧</div>
+              <div style="font-size:10px;font-weight:600;color:var(--off);margin-top:3px;">Water</div>
+              <div style="font-size:11px;font-weight:700;color:#111;">Every 7–10 days</div>
+            </div>
+            <div style="background:#fff;border-radius:11px;padding:10px;text-align:center;border:1px solid rgba(45,122,58,.1);">
+              <div style="font-size:18px;">🌡️</div>
+              <div style="font-size:10px;font-weight:600;color:var(--off);margin-top:3px;">Temp</div>
+              <div style="font-size:11px;font-weight:700;color:#111;">18–29°C</div>
+            </div>
+            <div style="background:#fff;border-radius:11px;padding:10px;text-align:center;border:1px solid rgba(45,122,58,.1);">
+              <div style="font-size:18px;">💨</div>
+              <div style="font-size:10px;font-weight:600;color:var(--off);margin-top:3px;">Humidity</div>
+              <div style="font-size:11px;font-weight:700;color:#111;">50–70%</div>
+            </div>
+          </div>
+
+          <div class="sec-h">Common Issues</div>
+          <div style="background:#fff;border-radius:12px;overflow:hidden;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #f0f0f0;font-size:12px;"><span style="color:#111;font-weight:600;">🟡 Yellow leaves</span><span style="color:var(--off);">Overwatering</span></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #f0f0f0;font-size:12px;"><span style="color:#111;font-weight:600;">🟤 Brown tips</span><span style="color:var(--off);">Low humidity</span></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 14px;font-size:12px;"><span style="color:#111;font-weight:600;">🐛 Pests</span><span style="color:var(--off);">Inspect &amp; neem oil</span></div>
+          </div>
+
+          <button class="btn-g" onclick="go('reminders',8)">+ Set Care Reminders</button>
+          <button class="btn-out" style="margin-top:8px;" onclick="go('expert',6)">Ask an Expert</button>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',3)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni" onclick="go('identify',4)"><span style="font-size:16px;">🔍</span>Search</div>
+          <div class="ni" onclick="go('reminders',8)"><span style="font-size:16px;">🔔</span>Reminders</div>
+          <div class="ni" onclick="go('community',9)"><span style="font-size:16px;">👤</span>Account</div>
+        </div>
+      </div>
+
+      <!-- ⑨ REMINDERS -->
+      <div class="sc" id="sc-reminders">
+        <div class="top">
+          <div style="font-size:15px;font-weight:700;color:#111;padding-top:8px;">Care Reminders</div>
+          <div style="font-size:11px;color:var(--off);margin-top:2px;">Today · May 30</div>
+        </div>
+        <div class="body">
+          <div style="background:var(--green);border-radius:12px;padding:12px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
+            <div><div style="font-size:12px;font-weight:700;color:#fff;">3 tasks due today</div><div style="font-size:10px;color:rgba(255,255,255,.7);">2 completed</div></div>
+            <div style="width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;">✓</div>
+          </div>
+          <div class="sec-h">Today's Tasks</div>
+          <div class="remind-card">
+            <div class="remind-icon" style="background:#e3f2fd;">💧</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:#111;">Water Pothos</div><div style="font-size:10px;color:var(--off);">Every 7 days · Due today</div></div>
+            <div class="done-check done" onclick="this.classList.toggle('done')">✓</div>
+          </div>
+          <div class="remind-card">
+            <div class="remind-icon" style="background:#e8f5ea;">🌱</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:#111;">Fertilise Succulent</div><div style="font-size:10px;color:var(--off);">Monthly · Due today</div></div>
+            <div class="done-check done" onclick="this.classList.toggle('done')">✓</div>
+          </div>
+          <div class="remind-card">
+            <div class="remind-icon" style="background:#fff3e0;">☀️</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:#111;">Rotate Bamboo</div><div style="font-size:10px;color:var(--off);">Weekly · Due today</div></div>
+            <div class="done-check" onclick="this.classList.toggle('done')"></div>
+          </div>
+          <div class="sec-h" style="margin-top:8px;">Upcoming</div>
+          <div class="remind-card">
+            <div class="remind-icon" style="background:#fce4ec;">🌡️</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:#111;">Check humidity — Fern</div><div style="font-size:10px;color:var(--off);">Tomorrow · Jun 1</div></div>
+          </div>
+          <div class="remind-card">
+            <div class="remind-icon" style="background:#e8f5ea;">💧</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:#111;">Water Cactus</div><div style="font-size:10px;color:var(--off);">In 14 days · Jun 13</div></div>
+          </div>
+          <button class="btn-g" style="margin-top:8px;">+ Add Reminder</button>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',3)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni" onclick="go('identify',4)"><span style="font-size:16px;">🔍</span>Search</div>
+          <div class="ni a"><span style="font-size:16px;">🔔</span>Reminders</div>
+          <div class="ni" onclick="go('community',9)"><span style="font-size:16px;">👤</span>Account</div>
+        </div>
+      </div>
+
+      <!-- ⑩ COMMUNITY -->
+      <div class="sc" id="sc-community">
+        <div class="top">
+          <div style="font-size:15px;font-weight:700;color:#111;padding-top:8px;">Community</div>
+          <div style="font-size:11px;color:var(--off);margin-top:2px;">Cultivate Greenery, Foster Community, Grow Joy</div>
+        </div>
+        <div class="body">
+          <div style="display:flex;gap:8px;margin-bottom:14px;">
+            <input class="inp" placeholder="Ask the community…" style="flex:1;margin-bottom:0;"/>
+          </div>
+          <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
+            <span class="tag sel">All</span>
+            <span class="tag unsel" onclick="go('plant-detail',7)">Tips</span>
+            <span class="tag unsel" onclick="go('identify',4)">Diagnosis</span>
+            <span class="tag unsel">Showcase</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="background:#fff;border-radius:13px;padding:13px;border:1px solid rgba(45,122,58,.1);">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><div style="width:28px;height:28px;background:var(--green-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;">🌻</div><div style="font-size:11px;font-weight:700;color:#111;">Sara M.</div><div style="font-size:10px;color:var(--off);">2h ago</div></div>
+              <div style="font-size:12px;color:#111;line-height:1.5;margin-bottom:8px;">My Monstera finally grew a new leaf after 3 months of waiting! 🥺 For anyone struggling — patience and good light is the key!</div>
+              <div style="display:flex;gap:14px;font-size:11px;color:var(--off);"><span style="cursor:pointer;">❤️ 24</span><span style="cursor:pointer;">💬 7 replies</span><span style="cursor:pointer;">🔖 Save</span></div>
+            </div>
+            <div style="background:#fff;border-radius:13px;padding:13px;border:1px solid rgba(45,122,58,.1);">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><div style="width:28px;height:28px;background:#e8f5ea;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;">🌿</div><div style="font-size:11px;font-weight:700;color:#111;">Tom K.</div><div style="font-size:10px;color:var(--off);">5h ago</div></div>
+              <div style="font-size:12px;color:#111;line-height:1.5;margin-bottom:6px;">Can anyone help? My Peace Lily has black spots on the leaves. I've had it for 6 months and this just started.</div>
+              <div style="background:#fff3cd;border-radius:8px;padding:8px;margin-bottom:8px;font-size:11px;color:#856404;">🧑‍🌾 Expert Lisa replied: This looks like fungal leaf spot. Remove affected leaves and treat with a diluted neem oil spray.</div>
+              <div style="display:flex;gap:14px;font-size:11px;color:var(--off);"><span style="cursor:pointer;">❤️ 11</span><span style="cursor:pointer;">💬 3 replies</span><span style="cursor:pointer;">🔖 Save</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="nb">
+          <div class="ni" onclick="go('home',3)"><span style="font-size:16px;">🏠</span>Home</div>
+          <div class="ni" onclick="go('identify',4)"><span style="font-size:16px;">🔍</span>Search</div>
+          <div class="ni" onclick="go('reminders',8)"><span style="font-size:16px;">🔔</span>Reminders</div>
+          <div class="ni a"><span style="font-size:16px;">👤</span>Account</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SIDE NOTES -->
+  <div class="notes">
+    <div class="nc">
+      <div class="nl">About Nature Nest</div>
+      <div class="nt">The ultimate plant care app for modern gardeners. Provides education, AI plant identification, expert chat, care guides, and community — helping plant owners of all skill levels keep their plants thriving.</div>
+    </div>
+    <div class="nc">
+      <div class="nl">3 User Personas</div>
+      <div class="fl"><div class="fn">1</div><div class="ft"><strong style="color:rgba(255,255,255,.7);">Busy Urbanite</strong> — automated watering reminders, quick troubleshooting</div></div>
+      <div class="fl"><div class="fn">2</div><div class="ft"><strong style="color:rgba(255,255,255,.7);">Novice Gardener</strong> — plant ID, beginner tutorials, personalised care</div></div>
+      <div class="fl"><div class="fn">3</div><div class="ft"><strong style="color:rgba(255,255,255,.7);">Plant Enthusiast</strong> — advanced diagnostics, community, smart device integration</div></div>
+    </div>
+    <div class="nc">
+      <div class="nl">3 Key Features</div>
+      <div class="fl"><div class="fn">1</div><div class="ft">Plant Care Database — vast care guides with personalised recommendations</div></div>
+      <div class="fl"><div class="fn">2</div><div class="ft">AI Issue Detection — snap a photo, get instant diagnosis + solutions</div></div>
+      <div class="fl"><div class="fn">3</div><div class="ft">Community &amp; Expert Chat — connect with Plantvisors and fellow growers</div></div>
+    </div>
+    <div class="nc">
+      <div class="nl">Design System</div>
+      <div class="swatch-row"><div style="width:16px;height:16px;border-radius:3px;background:#2d7a3a;"></div><div style="font-size:11px;color:rgba(255,255,255,.45);">Primary Green #2D7A3A</div></div>
+      <div class="swatch-row"><div style="width:16px;height:16px;border-radius:3px;background:#4db860;"></div><div style="font-size:11px;color:rgba(255,255,255,.45);">Light Green #4DB860</div></div>
+      <div class="swatch-row"><div style="width:16px;height:16px;border-radius:3px;background:#e8f5ea;border:1px solid rgba(255,255,255,.15);"></div><div style="font-size:11px;color:rgba(255,255,255,.45);">Green BG #E8F5EA</div></div>
+      <div class="swatch-row"><div style="width:16px;height:16px;border-radius:3px;background:#f5f9f5;border:1px solid rgba(255,255,255,.15);"></div><div style="font-size:11px;color:rgba(255,255,255,.45);">Cream #F5F9F5</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(id,idx){
+  document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));
+  var el=document.getElementById('sc-'+id);
+  if(el)el.classList.add('on');
+  document.querySelectorAll('.sb').forEach((b,i)=>b.classList.toggle('on',i===idx));
+}
+function selectProfile(n){
+  for(var i=1;i<=5;i++){
+    var el=document.getElementById('pc'+i);
+    if(el)el.classList.toggle('sel',i===n);
+  }
+}
+</script>
+</body>
+</html>

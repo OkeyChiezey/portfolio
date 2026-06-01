@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>VXST — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#c8c3d4;
+  --surface:#3d3660;
+  --surface2:#4a4275;
+  --surface3:#584e85;
+  --bg-color:#b8b2cb;
+  --off-text:#9b96b8;
+  --white:#ffffff;
+  --accent:#5c52a0;
+  --accent2:#7b6fc4;
+  --error:#ff2d2d;
+  --green:#22c55e;
+  --red:#ef4444;
+  --text:#0f0d1a;
+  --card:#f5f4f9;
+}
+
+body{
+  font-family:'DM Sans',sans-serif;
+  background: linear-gradient(135deg,#1a1730 0%,#2d2850 50%,#1a1730 100%);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding:2rem 1rem 4rem;
+}
+
+/* ── HEADER BAR ── */
+.proto-header{
+  width:100%;
+  max-width:900px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:2rem;
+  padding:0 0.5rem;
+}
+.proto-logo{
+  font-family:'Syne',sans-serif;
+  font-weight:800;
+  font-size:1.6rem;
+  letter-spacing:-0.02em;
+  color:#fff;
+}
+.proto-logo span{color:#9b8fe8;}
+.proto-badge{
+  font-size:0.7rem;
+  font-weight:600;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.4);
+  background:rgba(255,255,255,0.07);
+  padding:0.4rem 0.9rem;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,0.1);
+}
+
+/* ── STAGE LABELS ── */
+.stage-row{
+  width:100%;
+  max-width:900px;
+  display:flex;
+  gap:0.5rem;
+  margin-bottom:1.5rem;
+  flex-wrap:wrap;
+}
+.stage-btn{
+  flex:1;
+  min-width:90px;
+  padding:0.5rem 0.8rem;
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.05);
+  border-radius:8px;
+  font-family:'DM Sans',sans-serif;
+  font-size:0.7rem;
+  font-weight:600;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.4);
+  cursor:pointer;
+  transition:all 0.2s;
+  text-align:center;
+}
+.stage-btn.active{
+  background:rgba(155,143,232,0.2);
+  border-color:rgba(155,143,232,0.5);
+  color:#c5bbf0;
+}
+.stage-btn:hover:not(.active){
+  background:rgba(255,255,255,0.08);
+  color:rgba(255,255,255,0.6);
+}
+
+/* ── PHONE FRAME ── */
+.phone-wrap{
+  display:flex;
+  justify-content:center;
+  gap:2rem;
+  align-items:flex-start;
+  flex-wrap:wrap;
+}
+
+.phone{
+  width:320px;
+  height:660px;
+  background:#111018;
+  border-radius:44px;
+  padding:14px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.08),
+    0 40px 80px rgba(0,0,0,0.6),
+    inset 0 0 0 1px rgba(255,255,255,0.04);
+  position:relative;
+  flex-shrink:0;
+}
+.phone-inner{
+  width:100%;
+  height:100%;
+  background:var(--bg-color);
+  border-radius:32px;
+  overflow:hidden;
+  position:relative;
+}
+.notch{
+  position:absolute;
+  top:0;left:50%;
+  transform:translateX(-50%);
+  width:100px;height:30px;
+  background:#111018;
+  border-radius:0 0 18px 18px;
+  z-index:10;
+}
+
+/* ── SCREENS ── */
+.screen{
+  position:absolute;
+  inset:0;
+  background:var(--bg-color);
+  display:none;
+  flex-direction:column;
+  overflow:hidden;
+}
+.screen.active{display:flex;}
+
+/* ── SPLASH ── */
+.splash{
+  background:linear-gradient(180deg,#3d3660 0%,#2a2445 100%);
+  align-items:center;
+  justify-content:center;
+  gap:1rem;
+}
+.splash-logo{
+  font-family:'Syne',sans-serif;
+  font-weight:800;
+  font-size:3.5rem;
+  color:#fff;
+  letter-spacing:-0.04em;
+}
+.splash-tag{
+  font-size:0.8rem;
+  color:rgba(255,255,255,0.5);
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+}
+.splash-dot{
+  width:8px;height:8px;
+  border-radius:50%;
+  background:#9b8fe8;
+  animation:pulse 1.5s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(1.4);}}
+
+/* ── LOGIN/SIGNUP CHOICE ── */
+.auth-choice{
+  background:linear-gradient(180deg,#3d3660 0%,#2a2445 100%);
+  align-items:center;
+  justify-content:center;
+  gap:1.5rem;
+  padding:2rem;
+}
+.auth-logo{
+  font-family:'Syne',sans-serif;
+  font-weight:800;
+  font-size:2.5rem;
+  color:#fff;
+  margin-bottom:1rem;
+}
+
+/* ── SHARED SCREEN STYLES ── */
+.screen-top{
+  padding:44px 20px 16px;
+  background:var(--bg-color);
+}
+.screen-body{
+  flex:1;
+  overflow-y:auto;
+  padding:16px 20px 24px;
+  background:var(--bg-color);
+}
+.screen-body::-webkit-scrollbar{width:0;}
+
+/* ── INPUTS ── */
+.inp-label{font-size:0.72rem;font-weight:600;color:var(--off-text);margin-bottom:4px;letter-spacing:0.04em;}
+.inp{
+  width:100%;
+  padding:12px 14px;
+  background:var(--white);
+  border:1.5px solid rgba(92,82,160,0.2);
+  border-radius:10px;
+  font-family:'DM Sans',sans-serif;
+  font-size:0.85rem;
+  color:var(--text);
+  margin-bottom:14px;
+  outline:none;
+  transition:border-color 0.2s;
+}
+.inp:focus{border-color:var(--accent2);}
+.inp::placeholder{color:#bbb;}
+
+/* ── BUTTONS ── */
+.btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  font-family:'DM Sans',sans-serif;
+  font-size:0.9rem;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.2s;
+  letter-spacing:0.02em;
+}
+.btn-primary{background:var(--surface);color:#fff;}
+.btn-primary:hover{background:var(--surface2);}
+.btn-secondary{background:rgba(255,255,255,0.15);color:#fff;border:1.5px solid rgba(255,255,255,0.25);}
+.btn-secondary:hover{background:rgba(255,255,255,0.22);}
+.btn-solid{background:var(--surface);color:#fff;border-radius:10px;}
+.btn-sm{padding:10px 16px;font-size:0.8rem;width:auto;border-radius:8px;}
+
+/* ── BACK BUTTON ── */
+.back-btn{
+  width:30px;height:30px;
+  background:rgba(92,82,160,0.15);
+  border:none;
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--surface);font-size:1rem;
+  margin-bottom:8px;
+}
+
+/* ── NAV BAR ── */
+.nav-bar{
+  display:flex;
+  background:var(--white);
+  padding:10px 0 6px;
+  border-top:1px solid rgba(92,82,160,0.1);
+  flex-shrink:0;
+}
+.nav-item{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:3px;
+  cursor:pointer;
+  padding:2px 0;
+}
+.nav-icon{font-size:1.1rem;}
+.nav-label{font-size:0.6rem;font-weight:600;color:#aaa;letter-spacing:0.04em;}
+.nav-item.active .nav-label{color:var(--surface);}
+.nav-item.active .nav-icon{filter:saturate(2);}
+
+/* ── HOME SCREEN ── */
+.home-header{
+  padding:44px 20px 16px;
+  background:var(--bg-color);
+}
+.home-greeting{font-size:1.1rem;font-weight:600;color:var(--text);}
+.home-sub{font-size:0.75rem;color:var(--off-text);}
+
+.balance-card{
+  background:var(--white);
+  border-radius:16px;
+  padding:16px;
+  margin-bottom:14px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.06);
+}
+.balance-label{font-size:0.7rem;color:var(--off-text);font-weight:600;margin-bottom:2px;}
+.balance-acct{font-size:0.72rem;color:var(--off-text);margin-bottom:10px;}
+.balance-amount{font-size:1.3rem;font-weight:700;color:var(--text);margin-bottom:12px;}
+.fund-btn{
+  display:inline-flex;align-items:center;gap:4px;
+  background:var(--surface);color:#fff;
+  padding:8px 16px;border-radius:8px;
+  font-size:0.78rem;font-weight:600;
+  border:none;cursor:pointer;
+}
+
+.section-title{font-size:0.8rem;font-weight:700;color:var(--text);margin-bottom:10px;}
+
+.tx-item{
+  display:flex;align-items:center;gap:12px;
+  background:var(--white);
+  border-radius:12px;padding:12px;
+  margin-bottom:8px;
+  cursor:pointer;
+  transition:transform 0.15s;
+}
+.tx-item:hover{transform:translateX(2px);}
+.tx-icon{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;flex-shrink:0;
+}
+.tx-icon.dep{background:#dcfce7;}
+.tx-icon.wit{background:#fee2e2;}
+.tx-info{flex:1;}
+.tx-name{font-size:0.82rem;font-weight:600;color:var(--text);}
+.tx-date{font-size:0.68rem;color:var(--off-text);}
+.tx-amt{text-align:right;}
+.tx-val{font-size:0.82rem;font-weight:700;color:var(--text);}
+.tx-sub{font-size:0.65rem;color:var(--off-text);}
+
+.refer-card{
+  background:var(--surface);
+  border-radius:14px;padding:14px;
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:4px;
+}
+.refer-text{color:#fff;}
+.refer-title{font-size:0.82rem;font-weight:600;}
+.refer-sub{font-size:0.68rem;opacity:0.7;}
+.refer-icon{
+  width:36px;height:36px;
+  background:rgba(255,255,255,0.15);
+  border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+}
+
+/* ── INVEST SCREEN ── */
+.wallet-tabs{
+  display:flex;gap:8px;margin-bottom:16px;
+}
+.wallet-tab{
+  flex:1;background:var(--white);border-radius:10px;
+  padding:10px 8px;text-align:center;cursor:pointer;
+  border:2px solid transparent;transition:all 0.2s;
+}
+.wallet-tab.active{border-color:var(--accent2);}
+.wallet-tab-label{font-size:0.65rem;color:var(--off-text);font-weight:600;}
+.wallet-tab-val{font-size:0.95rem;font-weight:700;color:var(--text);}
+
+.search-bar{
+  display:flex;align-items:center;gap:8px;
+  background:var(--white);
+  border-radius:10px;padding:10px 14px;
+  margin-bottom:14px;
+  border:1.5px solid rgba(92,82,160,0.12);
+}
+.search-bar input{
+  border:none;outline:none;flex:1;
+  font-size:0.82rem;background:transparent;
+  font-family:'DM Sans',sans-serif;
+}
+.search-icon{color:var(--off-text);font-size:0.9rem;}
+
+.stocks-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:8px;margin-bottom:14px;
+}
+.stock-card{
+  background:var(--white);border-radius:12px;
+  padding:12px;cursor:pointer;
+  transition:all 0.2s;
+  border:1.5px solid transparent;
+}
+.stock-card:hover{border-color:var(--accent2);transform:translateY(-2px);}
+.stock-logo{
+  width:32px;height:32px;border-radius:8px;
+  background:rgba(92,82,160,0.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.65rem;font-weight:700;color:var(--surface);
+  margin-bottom:6px;
+}
+.stock-name{font-size:0.72rem;font-weight:700;color:var(--text);}
+.stock-price{font-size:0.82rem;font-weight:600;color:var(--text);margin-top:4px;}
+.stock-change{font-size:0.65rem;font-weight:600;}
+.up{color:var(--green);}
+.down{color:var(--red);}
+
+.portfolio-section{margin-top:4px;}
+.port-item{
+  background:var(--white);border-radius:12px;padding:12px;
+  display:flex;align-items:center;gap:10px;cursor:pointer;
+  margin-bottom:8px;transition:transform 0.15s;
+}
+.port-item:hover{transform:translateX(2px);}
+.port-logo{
+  width:36px;height:36px;border-radius:10px;
+  background:rgba(92,82,160,0.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.65rem;font-weight:700;color:var(--surface);
+}
+.port-info{flex:1;}
+.port-name{font-size:0.82rem;font-weight:700;color:var(--text);}
+.port-change{font-size:0.68rem;font-weight:600;}
+
+/* ── STOCK DETAIL ── */
+.stock-hero{
+  background:var(--surface);
+  border-radius:14px;padding:20px;
+  margin-bottom:14px;
+  display:flex;flex-direction:column;align-items:center;
+  gap:6px;
+}
+.stock-hero-logo{
+  width:64px;height:64px;border-radius:16px;
+  background:rgba(255,255,255,0.15);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.75rem;font-weight:700;color:#fff;
+  text-align:center;line-height:1.2;
+}
+.stock-hero-name{font-size:0.75rem;color:rgba(255,255,255,0.6);font-weight:600;}
+.stock-hero-price{font-size:1.5rem;font-weight:700;color:#fff;}
+.stock-hero-change{font-size:0.75rem;color:#6ee7b7;}
+
+.stock-stats{
+  background:var(--white);border-radius:14px;
+  overflow:hidden;margin-bottom:12px;
+}
+.stat-row{
+  display:flex;justify-content:space-between;
+  padding:10px 16px;border-bottom:1px solid #f0eff6;
+}
+.stat-row:last-child{border-bottom:none;}
+.stat-key{font-size:0.75rem;color:var(--off-text);}
+.stat-val{font-size:0.75rem;font-weight:600;color:var(--text);}
+
+.expand-item{
+  background:var(--surface2);
+  border-radius:10px;padding:12px 16px;
+  margin-bottom:6px;
+  display:flex;justify-content:space-between;align-items:center;
+  cursor:pointer;
+}
+.expand-label{font-size:0.78rem;font-weight:600;color:#fff;}
+.expand-arrow{color:rgba(255,255,255,0.5);font-size:0.8rem;}
+
+/* ── ENTER AMOUNT ── */
+.stock-mini{
+  background:var(--surface);
+  border-radius:14px;padding:16px;
+  margin-bottom:14px;
+}
+.amount-section label{
+  display:block;font-size:0.75rem;font-weight:600;
+  color:var(--off-text);margin-bottom:6px;
+}
+.amount-inp-wrap{
+  background:var(--white);border-radius:10px;
+  display:flex;align-items:center;padding:12px 14px;
+  border:1.5px solid rgba(92,82,160,0.2);margin-bottom:16px;
+}
+.currency{font-size:0.9rem;font-weight:700;color:var(--off-text);margin-right:8px;}
+.amount-inp{
+  border:none;outline:none;flex:1;
+  font-size:1rem;font-weight:600;
+  font-family:'DM Sans',sans-serif;color:var(--text);
+}
+
+/* ── SUMMARY ── */
+.summary-detail{margin-bottom:16px;}
+.summary-row{
+  display:flex;justify-content:space-between;
+  padding:8px 0;border-bottom:1px solid rgba(92,82,160,0.1);
+}
+.summary-row:last-child{border-bottom:none;}
+.s-key{font-size:0.78rem;color:var(--off-text);}
+.s-val{font-size:0.78rem;font-weight:600;color:var(--text);}
+
+.pin-dots{
+  display:flex;justify-content:center;gap:14px;margin:12px 0 20px;
+}
+.pin-dot{
+  width:14px;height:14px;border-radius:50%;
+  background:rgba(92,82,160,0.15);
+  border:2px solid var(--surface2);
+  transition:background 0.2s;
+}
+.pin-dot.filled{background:var(--surface);}
+
+/* ── SUCCESS ── */
+.success-screen{
+  align-items:center;justify-content:center;
+  gap:1rem;padding:2rem;
+  background:linear-gradient(180deg,#3d3660 0%,#2a2445 100%);
+}
+.success-icon{
+  width:80px;height:80px;
+  background:rgba(34,197,94,0.2);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.5rem;
+}
+.success-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;color:#fff;}
+.success-sub{font-size:0.85rem;color:rgba(255,255,255,0.5);text-align:center;line-height:1.5;}
+
+/* ── TRANSACT ── */
+.transact-popup{
+  position:absolute;bottom:0;left:0;right:0;
+  background:var(--white);
+  border-radius:24px 24px 0 0;
+  padding:24px 20px 32px;
+  box-shadow:0 -8px 40px rgba(0,0,0,0.15);
+  z-index:20;
+}
+.popup-handle{
+  width:40px;height:4px;background:#e0dff0;
+  border-radius:2px;margin:0 auto 20px;
+}
+.popup-title{font-size:0.9rem;font-weight:700;color:var(--text);margin-bottom:16px;text-align:center;}
+.popup-btn{
+  width:100%;padding:14px;
+  border-radius:12px;margin-bottom:10px;
+  font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;
+  border:none;cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:center;gap:10px;
+}
+.popup-btn.bank{background:var(--surface);color:#fff;}
+.popup-btn.card{background:rgba(92,82,160,0.1);color:var(--surface);}
+.popup-btn .pb-icon{font-size:1.1rem;}
+
+/* ── SIDE NOTES PANEL ── */
+.notes-panel{
+  width:260px;
+  flex-shrink:0;
+  align-self:flex-start;
+  position:sticky;
+  top:0;
+}
+.note-card{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:12px;
+}
+.note-label{
+  font-size:0.65rem;
+  font-weight:700;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:#9b8fe8;
+  margin-bottom:8px;
+}
+.note-title{
+  font-family:'Syne',sans-serif;
+  font-size:0.95rem;
+  font-weight:700;
+  color:#fff;
+  margin-bottom:6px;
+}
+.note-text{
+  font-size:0.75rem;
+  color:rgba(255,255,255,0.5);
+  line-height:1.6;
+}
+.flow-step{
+  display:flex;align-items:flex-start;gap:8px;
+  margin-bottom:8px;
+}
+.flow-num{
+  width:20px;height:20px;
+  border-radius:50%;
+  background:rgba(155,143,232,0.25);
+  border:1px solid rgba(155,143,232,0.4);
+  font-size:0.62rem;font-weight:700;
+  color:#c5bbf0;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;
+}
+.flow-text{font-size:0.72rem;color:rgba(255,255,255,0.55);line-height:1.45;}
+.flow-text strong{color:rgba(255,255,255,0.8);}
+
+@media(max-width:700px){
+  .notes-panel{display:none;}
+  .phone-wrap{gap:0;}
+}
+</style>
+</head>
+<body>
+
+<div class="proto-header">
+  <div class="proto-logo">VX<span>ST</span></div>
+  <div class="proto-badge">Interactive Prototype · UX Case Study</div>
+</div>
+
+<div class="stage-row" id="stageRow">
+  <button class="stage-btn active" data-screen="splash" onclick="goTo('splash',this)">① Splash</button>
+  <button class="stage-btn" data-screen="auth-choice" onclick="goTo('auth-choice',this)">② Auth</button>
+  <button class="stage-btn" data-screen="login" onclick="goTo('login',this)">③ Login</button>
+  <button class="stage-btn" data-screen="home" onclick="goTo('home',this)">④ Home</button>
+  <button class="stage-btn" data-screen="invest" onclick="goTo('invest',this)">⑤ Invest</button>
+  <button class="stage-btn" data-screen="stock-detail" onclick="goTo('stock-detail',this)">⑥ Stock</button>
+  <button class="stage-btn" data-screen="enter-amount" onclick="goTo('enter-amount',this)">⑦ Amount</button>
+  <button class="stage-btn" data-screen="summary" onclick="goTo('summary',this)">⑧ Summary</button>
+</div>
+
+<div class="phone-wrap">
+
+  <!-- PHONE -->
+  <div class="phone">
+    <div class="phone-inner">
+      <div class="notch"></div>
+
+      <!-- ① SPLASH -->
+      <div class="screen active" id="s-splash">
+        <div style="flex:1;background:linear-gradient(180deg,#3d3660 0%,#2a2445 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
+          <div class="splash-logo">VXST</div>
+          <div class="splash-tag">The Gateway to Investing</div>
+          <div class="splash-dot"></div>
+          <div style="position:absolute;bottom:50px;width:100%;padding:0 28px;">
+            <button class="btn btn-secondary" onclick="goTo('auth-choice', getStageBtn('auth-choice'))">Get Started →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② AUTH CHOICE -->
+      <div class="screen" id="s-auth-choice">
+        <div style="flex:1;background:linear-gradient(180deg,#3d3660 0%,#2a2445 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:2rem 28px;">
+          <div class="auth-logo">VXST</div>
+          <p style="font-size:0.82rem;color:rgba(255,255,255,0.55);text-align:center;margin-bottom:8px;">Trading tools for today's investors. Invest in Nigerian stocks, track your portfolio, and grow your wealth.</p>
+          <button class="btn btn-secondary" onclick="goTo('login', getStageBtn('login'))">Login</button>
+          <button class="btn btn-primary" onclick="goTo('signup', getStageBtn('signup'))" style="background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.3);">Sign Up</button>
+        </div>
+      </div>
+
+      <!-- ③ LOGIN -->
+      <div class="screen" id="s-login">
+        <div class="screen-top" style="background:#f5f4f9;padding-top:50px;">
+          <button class="back-btn" onclick="goTo('auth-choice',getStageBtn('auth-choice'))">←</button>
+          <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;color:#0f0d1a;">Welcome back</div>
+          <div style="font-size:0.78rem;color:#9b96b8;margin-top:2px;">Sign in to your account</div>
+        </div>
+        <div class="screen-body" style="background:#f5f4f9;padding-top:20px;">
+          <div class="inp-label">Email Address</div>
+          <input class="inp" type="email" placeholder="you@email.com" value="sandra@email.com"/>
+          <div class="inp-label">Password</div>
+          <input class="inp" type="password" placeholder="••••••••" value="password"/>
+          <div style="text-align:right;margin-bottom:20px;">
+            <span style="font-size:0.73rem;color:var(--accent2);font-weight:600;cursor:pointer;">Forgot password?</span>
+          </div>
+          <button class="btn btn-solid" onclick="goTo('home',getStageBtn('home'))">Login</button>
+          <div style="text-align:center;margin-top:14px;font-size:0.73rem;color:var(--off-text);">Don't have an account? <span style="color:var(--accent2);font-weight:600;cursor:pointer;" onclick="goTo('signup',getStageBtn('signup'))">Sign Up</span></div>
+        </div>
+      </div>
+
+      <!-- ③b SIGNUP -->
+      <div class="screen" id="s-signup">
+        <div class="screen-top" style="background:#f5f4f9;padding-top:50px;">
+          <button class="back-btn" onclick="goTo('auth-choice',getStageBtn('auth-choice'))">←</button>
+          <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;color:#0f0d1a;">Create account</div>
+          <div style="font-size:0.78rem;color:#9b96b8;margin-top:2px;">Start your investment journey</div>
+        </div>
+        <div class="screen-body" style="background:#f5f4f9;padding-top:20px;">
+          <div class="inp-label">Email Address</div>
+          <input class="inp" type="email" placeholder="you@email.com"/>
+          <div class="inp-label">Phone Number</div>
+          <input class="inp" type="tel" placeholder="+1 (416) 000-0000"/>
+          <div class="inp-label">Password</div>
+          <input class="inp" type="password" placeholder="Create a strong password"/>
+          <button class="btn btn-solid" onclick="goTo('verify',null)">Sign Up</button>
+        </div>
+      </div>
+
+      <!-- ③c VERIFY -->
+      <div class="screen" id="s-verify">
+        <div class="screen-top" style="background:#f5f4f9;padding-top:50px;">
+          <button class="back-btn" onclick="goTo('signup',null)">←</button>
+          <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;color:#0f0d1a;">Verify your number</div>
+          <div style="font-size:0.78rem;color:#9b96b8;margin-top:2px;">Enter the 6-digit code sent to your phone</div>
+        </div>
+        <div class="screen-body" style="background:#f5f4f9;padding-top:24px;">
+          <input class="inp" placeholder="Enter verification code" style="text-align:center;font-size:1.2rem;letter-spacing:0.2em;font-weight:700;"/>
+          <button class="btn btn-solid" onclick="goTo('home',getStageBtn('home'))">Verify →</button>
+          <div style="text-align:center;margin-top:14px;font-size:0.73rem;color:var(--off-text);">Didn't receive it? <span style="color:var(--accent2);font-weight:600;cursor:pointer;">Resend</span></div>
+        </div>
+      </div>
+
+      <!-- ④ HOME -->
+      <div class="screen" id="s-home">
+        <div class="home-header">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-top:16px;">
+            <div>
+              <div class="home-greeting">Hi, Sandra Payne</div>
+              <div class="home-sub">Welcome back</div>
+            </div>
+            <div style="font-size:1.3rem;cursor:pointer;">☰</div>
+          </div>
+        </div>
+        <div class="screen-body">
+          <div class="balance-card">
+            <div class="balance-label">Primary Account</div>
+            <div class="balance-acct" style="font-size:0.7rem;color:var(--off-text);">3467-2344-876</div>
+            <div class="balance-label" style="margin-top:6px;">Available Balance</div>
+            <div class="balance-amount">$25,000,000</div>
+            <button class="fund-btn" onclick="goTo('transact',getStageBtn('transact'))">+ Fund Account</button>
+          </div>
+
+          <div class="section-title">Recent Transactions</div>
+          <div class="tx-item">
+            <div class="tx-icon dep">📈</div>
+            <div class="tx-info">
+              <div class="tx-name">Deposit</div>
+              <div class="tx-date">June 06, 2024</div>
+            </div>
+            <div class="tx-amt">
+              <div class="tx-val up">$24,000</div>
+              <div class="tx-sub">$34,000,000</div>
+            </div>
+          </div>
+          <div class="tx-item">
+            <div class="tx-icon wit">📉</div>
+            <div class="tx-info">
+              <div class="tx-name">Withdrawal</div>
+              <div class="tx-date">June 06, 2024</div>
+            </div>
+            <div class="tx-amt">
+              <div class="tx-val down">$24,000</div>
+              <div class="tx-sub">$34,000,000</div>
+            </div>
+          </div>
+          <div class="tx-item">
+            <div class="tx-icon dep">📈</div>
+            <div class="tx-info">
+              <div class="tx-name">Deposit</div>
+              <div class="tx-date">June 06, 2024</div>
+            </div>
+            <div class="tx-amt">
+              <div class="tx-val up">$24,000</div>
+              <div class="tx-sub">$34,000,000</div>
+            </div>
+          </div>
+
+          <div class="refer-card">
+            <div class="refer-text">
+              <div class="refer-title">Invite Your Friends</div>
+              <div class="refer-sub">Invite with the Spark Code</div>
+            </div>
+            <div class="refer-icon">🎯</div>
+          </div>
+        </div>
+        <div class="nav-bar">
+          <div class="nav-item active" onclick="goTo('home',getStageBtn('home'))"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+          <div class="nav-item" onclick="goTo('invest',getStageBtn('invest'))"><div class="nav-icon">📊</div><div class="nav-label">Invest</div></div>
+          <div class="nav-item" onclick="goTo('transact',getStageBtn('transact'))"><div class="nav-icon">💸</div><div class="nav-label">Transact</div></div>
+        </div>
+      </div>
+
+      <!-- ⑤ INVEST -->
+      <div class="screen" id="s-invest">
+        <div class="screen-top" style="padding-top:50px;">
+          <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:14px;">Invest</div>
+          <div class="wallet-tabs">
+            <div class="wallet-tab active"><div class="wallet-tab-label">Cash</div><div class="wallet-tab-val">$23,000</div></div>
+            <div class="wallet-tab"><div class="wallet-tab-label">Assets</div><div class="wallet-tab-val">$23,000</div></div>
+          </div>
+        </div>
+        <div class="screen-body">
+          <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input placeholder="Search stocks…"/>
+          </div>
+          <div class="section-title">Top Stocks To Invest In</div>
+          <div class="stocks-grid">
+            <div class="stock-card" onclick="goTo('stock-detail',getStageBtn('stock-detail'))">
+              <div class="stock-logo">DANG</div>
+              <div class="stock-name">Dangote Cement</div>
+              <div class="stock-price">$76,000</div>
+              <div class="stock-change down">▼ −0.534.8%</div>
+            </div>
+            <div class="stock-card" onclick="goTo('stock-detail',getStageBtn('stock-detail'))">
+              <div class="stock-logo">FLTR</div>
+              <div class="stock-name">Flutter</div>
+              <div class="stock-price">$76,000</div>
+              <div class="stock-change up">▲ +0.124.8%</div>
+            </div>
+            <div class="stock-card" onclick="goTo('stock-detail',getStageBtn('stock-detail'))">
+              <div class="stock-logo">PAY</div>
+              <div class="stock-name">Paystack</div>
+              <div class="stock-price">$76,000</div>
+              <div class="stock-change down">▼ −0.534.8%</div>
+            </div>
+            <div class="stock-card" onclick="goTo('stock-detail',getStageBtn('stock-detail'))">
+              <div class="stock-logo">DNJ</div>
+              <div class="stock-name">Down J.</div>
+              <div class="stock-price">$76,000</div>
+              <div class="stock-change up">▲ +0.124.8%</div>
+            </div>
+          </div>
+          <div style="text-align:right;margin-bottom:16px;"><span style="font-size:0.72rem;color:var(--accent2);font-weight:600;cursor:pointer;">See All →</span></div>
+
+          <div class="section-title">Stock Portfolio</div>
+          <div class="portfolio-section">
+            <div class="port-item" onclick="goTo('stock-detail',getStageBtn('stock-detail'))">
+              <div class="port-logo">PAY</div>
+              <div class="port-info">
+                <div class="port-name">Paystack</div>
+                <div class="port-change up">▲ +345</div>
+              </div>
+              <div style="font-size:0.8rem;font-weight:600;color:var(--text);">$12,400</div>
+            </div>
+            <div class="port-item" onclick="goTo('stock-detail',getStageBtn('stock-detail'))">
+              <div class="port-logo">PAY</div>
+              <div class="port-info">
+                <div class="port-name">Paystack</div>
+                <div class="port-change up">▲ +345</div>
+              </div>
+              <div style="font-size:0.8rem;font-weight:600;color:var(--text);">$12,400</div>
+            </div>
+          </div>
+          <div style="text-align:right;"><span style="font-size:0.72rem;color:var(--accent2);font-weight:600;cursor:pointer;">See All →</span></div>
+        </div>
+        <div class="nav-bar">
+          <div class="nav-item" onclick="goTo('home',getStageBtn('home'))"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+          <div class="nav-item active" onclick="goTo('invest',getStageBtn('invest'))"><div class="nav-icon">📊</div><div class="nav-label">Invest</div></div>
+          <div class="nav-item" onclick="goTo('transact',getStageBtn('transact'))"><div class="nav-icon">💸</div><div class="nav-label">Transact</div></div>
+        </div>
+      </div>
+
+      <!-- ⑥ STOCK DETAIL -->
+      <div class="screen" id="s-stock-detail">
+        <div class="screen-top" style="padding-top:50px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <button class="back-btn" onclick="goTo('invest',getStageBtn('invest'))" style="margin-bottom:0;">←</button>
+            <div style="font-size:0.9rem;font-weight:700;color:var(--text);">Stock Details</div>
+          </div>
+        </div>
+        <div class="screen-body">
+          <div class="stock-hero">
+            <div class="stock-hero-logo">DANG<br/>CEMENT</div>
+            <div class="stock-hero-name">Dangote Cement PLC</div>
+            <div class="stock-hero-price">$890.04</div>
+            <div class="stock-hero-change">▲ +34 (+0.45%)</div>
+          </div>
+          <div class="stock-stats">
+            <div class="stat-row"><span class="stat-key">My Position</span><span class="stat-val">35</span></div>
+            <div class="stat-row"><span class="stat-key">Open</span><span class="stat-val">10.56</span></div>
+            <div class="stat-row"><span class="stat-key">Prev. Close</span><span class="stat-val">35.78</span></div>
+            <div class="stat-row"><span class="stat-key">Mkt. Cap</span><span class="stat-val">$345.909B</span></div>
+          </div>
+          <div class="expand-item"><span class="expand-label">About Dangote</span><span class="expand-arrow">›</span></div>
+          <div class="expand-item"><span class="expand-label">Valuation Bank</span><span class="expand-arrow">›</span></div>
+          <div class="expand-item"><span class="expand-label">Dividend Yield</span><span class="expand-arrow">›</span></div>
+          <div style="height:14px;"></div>
+          <button class="btn btn-solid" onclick="goTo('enter-amount',getStageBtn('enter-amount'))">Invest</button>
+        </div>
+        <div class="nav-bar">
+          <div class="nav-item" onclick="goTo('home',getStageBtn('home'))"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+          <div class="nav-item active" onclick="goTo('invest',getStageBtn('invest'))"><div class="nav-icon">📊</div><div class="nav-label">Invest</div></div>
+          <div class="nav-item" onclick="goTo('transact',getStageBtn('transact'))"><div class="nav-icon">💸</div><div class="nav-label">Transact</div></div>
+        </div>
+      </div>
+
+      <!-- ⑦ ENTER AMOUNT -->
+      <div class="screen" id="s-enter-amount">
+        <div class="screen-top" style="padding-top:50px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <button class="back-btn" onclick="goTo('stock-detail',getStageBtn('stock-detail'))" style="margin-bottom:0;">←</button>
+            <div style="font-size:0.9rem;font-weight:700;color:var(--text);">Enter Amount</div>
+          </div>
+        </div>
+        <div class="screen-body">
+          <div class="stock-mini">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;color:#fff;text-align:center;line-height:1.2;">DANG<br/>CEMENT</div>
+              <div>
+                <div style="font-size:1.1rem;font-weight:700;color:#fff;">$890.04</div>
+                <div style="font-size:0.72rem;color:#6ee7b7;">▲ +34 (+0.45%)</div>
+              </div>
+            </div>
+          </div>
+          <div class="amount-section">
+            <label>Enter Amount</label>
+            <div class="amount-inp-wrap">
+              <span class="currency">CAD</span>
+              <input class="amount-inp" type="number" placeholder="0.00" id="amountVal" oninput="document.getElementById('summaryAmt').textContent='$'+this.value"/>
+            </div>
+          </div>
+          <button class="btn btn-solid" onclick="goTo('summary',getStageBtn('summary'))">Proceed →</button>
+        </div>
+        <div class="nav-bar">
+          <div class="nav-item" onclick="goTo('home',getStageBtn('home'))"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+          <div class="nav-item active"><div class="nav-icon">📊</div><div class="nav-label">Invest</div></div>
+          <div class="nav-item" onclick="goTo('transact',getStageBtn('transact'))"><div class="nav-icon">💸</div><div class="nav-label">Transact</div></div>
+        </div>
+      </div>
+
+      <!-- ⑧ SUMMARY -->
+      <div class="screen" id="s-summary">
+        <div class="screen-top" style="padding-top:50px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <button class="back-btn" onclick="goTo('enter-amount',getStageBtn('enter-amount'))" style="margin-bottom:0;">←</button>
+            <div style="font-size:0.9rem;font-weight:700;color:var(--text);">Summary</div>
+          </div>
+        </div>
+        <div class="screen-body">
+          <div class="stock-mini" style="margin-bottom:14px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;color:#fff;text-align:center;line-height:1.2;">DANG<br/>CEMENT</div>
+              <div>
+                <div style="font-size:1.1rem;font-weight:700;color:#fff;">$890.04</div>
+                <div style="font-size:0.72rem;color:#6ee7b7;">▲ +34 (+0.45%)</div>
+              </div>
+            </div>
+          </div>
+          <div class="summary-detail">
+            <div class="summary-row"><span class="s-key">Name</span><span class="s-val">Marcy Tracy</span></div>
+            <div class="summary-row"><span class="s-key">Amount</span><span class="s-val" id="summaryAmt">$345,000</span></div>
+            <div class="summary-row"><span class="s-key">Stock Name</span><span class="s-val">Dangote PLC</span></div>
+            <div class="summary-row"><span class="s-key">Subscription</span><span class="s-val">Annual</span></div>
+            <div class="summary-row"><span class="s-key">Min. Interest</span><span class="s-val" style="color:var(--green);">7.2%</span></div>
+          </div>
+          <div class="inp-label" style="margin-bottom:6px;">Enter PIN</div>
+          <div class="pin-dots">
+            <div class="pin-dot" id="d1"></div>
+            <div class="pin-dot" id="d2"></div>
+            <div class="pin-dot" id="d3"></div>
+            <div class="pin-dot" id="d4"></div>
+          </div>
+          <div class="inp-wrap" style="margin-bottom:16px;">
+            <input class="inp" type="password" maxlength="4" placeholder="Enter PIN" oninput="fillDots(this.value)"/>
+          </div>
+          <button class="btn btn-solid" onclick="goTo('success',null)">Invest Now</button>
+        </div>
+        <div class="nav-bar">
+          <div class="nav-item" onclick="goTo('home',getStageBtn('home'))"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+          <div class="nav-item active"><div class="nav-icon">📊</div><div class="nav-label">Invest</div></div>
+          <div class="nav-item" onclick="goTo('transact',getStageBtn('transact'))"><div class="nav-icon">💸</div><div class="nav-label">Transact</div></div>
+        </div>
+      </div>
+
+      <!-- ✅ SUCCESS -->
+      <div class="screen" id="s-success">
+        <div class="success-screen" style="flex:1;display:flex;">
+          <div class="success-icon">✅</div>
+          <div class="success-title">Investment Placed!</div>
+          <div class="success-sub">Your investment in Dangote PLC has been confirmed. You'll receive a confirmation shortly.</div>
+          <button class="btn btn-secondary" onclick="goTo('home',getStageBtn('home'))" style="margin-top:12px;">Back to Home</button>
+        </div>
+      </div>
+
+      <!-- 💸 TRANSACT -->
+      <div class="screen" id="s-transact">
+        <div class="screen-top" style="padding-top:50px;">
+          <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text);">Transact</div>
+          <div style="font-size:0.75rem;color:var(--off-text);margin-top:2px;">Deposit or withdraw funds</div>
+        </div>
+        <div class="screen-body" style="position:relative;">
+          <div style="height:200px;background:var(--white);border-radius:16px;padding:20px;margin-bottom:200px;">
+            <div style="font-size:0.8rem;font-weight:600;color:var(--off-text);">Current Balance</div>
+            <div style="font-size:1.5rem;font-weight:700;color:var(--text);margin-top:4px;">$25,000,000</div>
+          </div>
+          <div class="transact-popup">
+            <div class="popup-handle"></div>
+            <div class="popup-title">Choose Payment Method</div>
+            <button class="popup-btn bank"><span class="pb-icon">🏦</span> Bank Transfer</button>
+            <button class="popup-btn card"><span class="pb-icon">💳</span> Debit Card</button>
+          </div>
+        </div>
+        <div class="nav-bar">
+          <div class="nav-item" onclick="goTo('home',getStageBtn('home'))"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+          <div class="nav-item" onclick="goTo('invest',getStageBtn('invest'))"><div class="nav-icon">📊</div><div class="nav-label">Invest</div></div>
+          <div class="nav-item active"><div class="nav-icon">💸</div><div class="nav-label">Transact</div></div>
+        </div>
+      </div>
+
+    </div><!-- phone-inner -->
+  </div><!-- phone -->
+
+  <!-- SIDE NOTES -->
+  <div class="notes-panel">
+    <div class="note-card">
+      <div class="note-label">Project</div>
+      <div class="note-title">VXST — Stock Investment App</div>
+      <div class="note-text">A mobile-first fintech app enabling diaspora investors to buy Nigerian stocks simply — from Dangote to Paystack — with a clean, low-friction UX.</div>
+    </div>
+    <div class="note-card">
+      <div class="note-label">Core User Flow</div>
+      <div class="flow-step"><div class="flow-num">1</div><div class="flow-text"><strong>Splash → Auth</strong> — Onboarding with Login or Sign Up</div></div>
+      <div class="flow-step"><div class="flow-num">2</div><div class="flow-text"><strong>Home</strong> — Balance, recent transactions, referral</div></div>
+      <div class="flow-step"><div class="flow-num">3</div><div class="flow-text"><strong>Invest</strong> — Browse top stocks, portfolio view</div></div>
+      <div class="flow-step"><div class="flow-num">4</div><div class="flow-text"><strong>Stock Detail</strong> — Price, stats, company info</div></div>
+      <div class="flow-step"><div class="flow-num">5</div><div class="flow-text"><strong>Enter Amount → Summary → PIN</strong></div></div>
+      <div class="flow-step"><div class="flow-num">6</div><div class="flow-text"><strong>Confirmation</strong> — Investment placed ✓</div></div>
+    </div>
+    <div class="note-card">
+      <div class="note-label">Design System</div>
+      <div class="note-text" style="margin-bottom:8px;">Colors drawn from branding guide:</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:20px;height:20px;border-radius:4px;background:#b8b2cb;"></div><div style="font-size:0.7rem;color:rgba(255,255,255,0.5);">Background — #B8B2CB</div></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:20px;height:20px;border-radius:4px;background:#3d3660;"></div><div style="font-size:0.7rem;color:rgba(255,255,255,0.5);">Surface — #3D3660</div></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:20px;height:20px;border-radius:4px;background:#ff2d2d;"></div><div style="font-size:0.7rem;color:rgba(255,255,255,0.5);">Error — #FF2D2D</div></div>
+      </div>
+    </div>
+    <div class="note-card">
+      <div class="note-label">UX Problem</div>
+      <div class="note-text">Diaspora investors find existing Nigerian stock apps overwhelming — information overload, complex navigation, and non-friendly interfaces. VXST simplifies the entire journey to 4 taps.</div>
+    </div>
+  </div>
+
+</div><!-- phone-wrap -->
+
+<script>
+function goTo(id, btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = document.getElementById('s-'+id);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.stage-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+function getStageBtn(screen){
+  return document.querySelector('[data-screen="'+screen+'"]');
+}
+function fillDots(val){
+  for(let i=1;i<=4;i++){
+    const d=document.getElementById('d'+i);
+    if(d) d.classList.toggle('filled', i<=val.length);
+  }
+  if(val.length===4) setTimeout(()=>goTo('success',null),400);
+}
+// Auto-advance splash after 1.8s on load
+setTimeout(()=>{}, 1800);
+</script>
+</body>
+</html>

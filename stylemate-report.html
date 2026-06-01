@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>StyleMate — UX Case Study Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --black:#0a0806;
+  --white:#fafaf8;
+  --red:#e81c1c;
+  --yellow:#ffd600;
+  --yellow2:#ffe566;
+  --grey:#1a1a1a;
+  --mid:#444;
+  --off:#888;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black);overflow-x:hidden;}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;background:var(--black);display:flex;flex-direction:column;
+  justify-content:flex-end;padding:0 5vw 6vw;position:relative;overflow:hidden;
+}
+.hero-noise{
+  position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:.5;
+}
+.hero-year{
+  position:absolute;top:3rem;right:5vw;
+  font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.3em;
+  color:rgba(255,255,255,.2);
+}
+.hero-tag{
+  font-size:.72rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--yellow);margin-bottom:1.2rem;
+  display:flex;align-items:center;gap:.7rem;
+}
+.hero-tag::before{content:'';width:2rem;height:1.5px;background:var(--yellow);}
+.hero h1{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(5rem,15vw,14rem);
+  line-height:.88;letter-spacing:-.01em;color:var(--white);
+  position:relative;z-index:1;
+}
+.hero h1 span{color:var(--red);}
+.hero-sub{
+  margin-top:2rem;font-size:1.05rem;color:rgba(255,255,255,.45);
+  max-width:520px;line-height:1.7;font-weight:300;
+  border-left:2px solid var(--red);padding-left:1.2rem;
+}
+.hero-meta{
+  position:absolute;top:3rem;left:5vw;
+  display:flex;flex-direction:column;gap:.4rem;
+}
+.hero-meta span{font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3);}
+.hero-meta strong{font-size:.8rem;color:rgba(255,255,255,.7);letter-spacing:.06em;}
+.scroll-hint{
+  position:absolute;bottom:3rem;right:5vw;
+  writing-mode:vertical-rl;font-size:.68rem;letter-spacing:.2em;
+  text-transform:uppercase;color:rgba(255,255,255,.25);
+}
+
+/* ── OVERVIEW BAND ── */
+.band{background:var(--yellow);padding:3rem 5vw;display:flex;gap:4rem;flex-wrap:wrap;align-items:flex-start;}
+.band-stat{flex:1;min-width:140px;}
+.band-num{font-family:'Bebas Neue',sans-serif;font-size:3.5rem;color:var(--black);line-height:1;}
+.band-label{font-size:.75rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);margin-top:.3rem;}
+
+/* ── SECTION ── */
+section{padding:6rem 5vw;}
+.s-label{font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:.8rem;display:flex;align-items:center;gap:.6rem;}
+.s-label::before{content:'';width:1.5rem;height:1.5px;background:var(--red);}
+.s-title{font-family:'DM Serif Display',serif;font-size:clamp(2rem,4vw,3.5rem);line-height:1.1;margin-bottom:2rem;}
+.s-title em{font-style:italic;color:var(--red);}
+.s-body{font-size:1.02rem;color:var(--mid);line-height:1.85;font-weight:300;max-width:680px;}
+.s-body p{margin-bottom:1.2rem;}
+.s-body strong{color:var(--black);font-weight:600;}
+
+/* ── TWO COL ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;}
+.two-col-wide{display:grid;grid-template-columns:1.4fr 1fr;gap:4rem;align-items:start;}
+@media(max-width:800px){.two-col,.two-col-wide{grid-template-columns:1fr;}}
+
+/* ── AUDIENCE GRID ── */
+.audience-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-top:2rem;}
+.audience-card{background:var(--black);color:var(--white);padding:1.4rem;border-radius:0;position:relative;overflow:hidden;}
+.audience-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--yellow);}
+.audience-card h4{font-size:.85rem;font-weight:700;margin-bottom:.5rem;padding-left:.8rem;letter-spacing:.04em;}
+.audience-card p{font-size:.78rem;color:rgba(255,255,255,.5);line-height:1.6;padding-left:.8rem;}
+
+/* ── WHITEBOARD SECTION ── */
+.wb-section{background:var(--black);padding:6rem 5vw;}
+.wb-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:3rem;}
+@media(max-width:700px){.wb-grid{grid-template-columns:1fr;}}
+.wb-card{position:relative;overflow:hidden;background:#111;border:1px solid rgba(255,255,255,.06);}
+.wb-img{width:100%;display:block;filter:contrast(1.05) brightness(.95);}
+.wb-caption{padding:1rem 1.2rem;background:#111;}
+.wb-caption h4{font-size:.8rem;font-weight:700;color:var(--yellow);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.3rem;}
+.wb-caption p{font-size:.75rem;color:rgba(255,255,255,.4);line-height:1.5;}
+.wb-single{width:100%;margin-top:1.5rem;}
+
+/* ── TRANSCRIPT CARDS ── */
+.transcript-grid{display:flex;flex-direction:column;gap:1.5rem;margin-top:2rem;}
+.t-card{border-left:3px solid var(--yellow);padding:1.2rem 1.5rem;background:#fafaf8;}
+.t-q{font-size:.8rem;font-weight:700;color:var(--red);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.5rem;}
+.t-a{font-size:.92rem;color:var(--mid);line-height:1.7;font-style:italic;}
+
+/* ── WIREFRAME SECTION ── */
+.wire-section{background:#f0ede8;padding:6rem 5vw;}
+.wire-imgs{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:3rem;}
+@media(max-width:700px){.wire-imgs{grid-template-columns:1fr;}}
+.wire-img-wrap{background:#fff;padding:.8rem;border:1px solid rgba(0,0,0,.08);}
+.wire-img-wrap img{width:100%;display:block;}
+.wire-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--mid);text-align:center;margin-top:.6rem;}
+
+/* ── DESIGN PROCESS ── */
+.process-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:3rem;border:1px solid var(--black);}
+@media(max-width:700px){.process-steps{grid-template-columns:1fr 1fr;}}
+.ps{border-right:1px solid var(--black);padding:1.5rem;position:relative;}
+.ps:last-child{border-right:none;}
+.ps-num{font-family:'Bebas Neue',sans-serif;font-size:3rem;color:rgba(0,0,0,.08);line-height:1;}
+.ps-title{font-size:.85rem;font-weight:700;color:var(--black);letter-spacing:.04em;margin-top:.3rem;}
+.ps-sub{font-size:.75rem;color:var(--off);line-height:1.5;margin-top:.4rem;}
+
+/* ── HI-FI SCREENS SECTION ── */
+.screens-section{background:var(--black);padding:6rem 5vw;}
+.screens-row{display:flex;gap:1rem;overflow-x:auto;padding-bottom:1rem;margin-top:3rem;}
+.screens-row::-webkit-scrollbar{height:3px;}
+.screens-row::-webkit-scrollbar-track{background:rgba(255,255,255,.05);}
+.screens-row::-webkit-scrollbar-thumb{background:var(--red);}
+.screen-wrap{flex-shrink:0;width:220px;}
+.screen-wrap img{width:100%;display:block;border:1px solid rgba(255,255,255,.08);}
+.screen-wrap p{font-size:.7rem;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;margin-top:.6rem;text-align:center;}
+
+/* ── LEARNINGS ── */
+.learnings-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:2.5rem;background:var(--black);}
+@media(max-width:700px){.learnings-grid{grid-template-columns:1fr;}}
+.lg{background:var(--white);padding:2rem;border:1px solid var(--black);}
+.lg-num{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--yellow);line-height:1;}
+.lg-title{font-size:.9rem;font-weight:700;color:var(--black);margin:.4rem 0 .6rem;letter-spacing:.02em;}
+.lg-body{font-size:.82rem;color:var(--mid);line-height:1.7;}
+
+/* ── PREMIUM SECTION ── */
+.premium-band{background:var(--red);padding:4rem 5vw;display:flex;gap:4rem;align-items:center;flex-wrap:wrap;}
+.premium-band h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,6vw,5rem);color:var(--white);line-height:.9;flex:1;}
+.premium-items{flex:2;display:flex;flex-direction:column;gap:.8rem;}
+.pi{display:flex;align-items:flex-start;gap:1rem;background:rgba(255,255,255,.1);padding:1rem 1.2rem;}
+.pi-dot{width:8px;height:8px;background:var(--yellow);border-radius:50%;flex-shrink:0;margin-top:.4rem;}
+.pi-text{font-size:.85rem;color:rgba(255,255,255,.85);line-height:1.5;}
+.pi-text strong{color:var(--white);}
+
+/* ── PROTO CTA ── */
+.proto-cta{background:var(--yellow);padding:5rem 5vw;text-align:center;}
+.proto-cta h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,8vw,7rem);color:var(--black);line-height:.9;margin-bottom:1.5rem;}
+.cta-btn{
+  display:inline-flex;align-items:center;gap:.7rem;
+  background:var(--black);color:var(--white);
+  padding:1rem 2.5rem;font-size:.85rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;text-decoration:none;
+  transition:background .2s;
+}
+.cta-btn:hover{background:var(--red);}
+
+/* ── FOOTER ── */
+footer{background:var(--black);padding:2.5rem 5vw;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+footer span{font-size:.75rem;color:rgba(255,255,255,.25);letter-spacing:.06em;}
+.back-link{font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--yellow);text-decoration:none;}
+.back-link:hover{color:var(--red);}
+
+/* ── DIVIDER ── */
+.rule{width:100%;height:1px;background:rgba(0,0,0,.1);margin:2rem 0;}
+.rule-dark{width:100%;height:1px;background:rgba(255,255,255,.08);margin:2rem 0;}
+
+/* ── FADE IN ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.hero h1,.hero-tag,.hero-sub{animation:fadeUp .8s ease both;}
+.hero-tag{animation-delay:.1s;}
+.hero h1{animation-delay:.2s;}
+.hero-sub{animation-delay:.3s;}
+</style>
+</head>
+<body>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-noise"></div>
+  <div class="hero-meta">
+    <span>Project</span>
+    <strong>StyleMate · Stylist Booking App</strong>
+    <div style="height:.5rem;"></div>
+    <span>Role</span>
+    <strong>UX Design · UX Research · UI Design</strong>
+    <div style="height:.5rem;"></div>
+    <span>Tools</span>
+    <strong>Figma · Miro · Whiteboard</strong>
+  </div>
+  <div class="hero-year">2024</div>
+  <div class="hero-tag">UX Case Study Report</div>
+  <h1>Style<span>Mate</span>.</h1>
+  <p class="hero-sub">A stylist booking app that connects users with professional fashion stylists for one-on-one video sessions, wardrobe advice, and personalised style guidance — from anywhere.</p>
+  <div class="scroll-hint">Scroll to explore ↓</div>
+</section>
+
+<!-- ── STATS BAND ── -->
+<div class="band">
+  <div class="band-stat"><div class="band-num">7</div><div class="band-label">Audience Segments Identified</div></div>
+  <div class="band-stat"><div class="band-num">4</div><div class="band-label">Design Process Stages</div></div>
+  <div class="band-stat"><div class="band-num">6</div><div class="band-label">Whiteboard Wireframe Screens</div></div>
+  <div class="band-stat"><div class="band-num">5</div><div class="band-label">Hi-Fidelity App Screens</div></div>
+  <div class="band-stat"><div class="band-num">3</div><div class="band-num-label" style="font-size:.75rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);margin-top:.3rem;">Membership Tiers Designed</div></div>
+</div>
+
+<!-- ── OVERVIEW ── -->
+<section>
+  <div class="two-col-wide">
+    <div>
+      <div class="s-label">Project Overview</div>
+      <h2 class="s-title">Connect with Fashion Stylists &amp; <em>Explore Trends</em></h2>
+      <div class="s-body">
+        <p>StyleMate was designed to solve a clear problem: people who want professional styling advice either can't afford in-person sessions, can't make time for them, or don't know where to start. The app connects users directly with vetted fashion stylists for virtual one-on-one sessions — covering wardrobe consultation, trend exploration, and personalised outfit planning.</p>
+        <p><strong>Why it matters:</strong> Generic fashion advice is everywhere, but personalised guidance tailored to your body type, lifestyle, and existing wardrobe is rare and expensive. StyleMate brings that expertise directly to users' phones — on their schedule, at accessible price points.</p>
+        <p>The design process covered audience definition, contextual understanding, whiteboard journey mapping, wireframing, hi-fi prototyping, user interviews, and a premium membership model for sustainable monetisation.</p>
+      </div>
+    </div>
+    <div style="padding-top:2rem;">
+      <div style="background:var(--black);padding:2rem;border-left:4px solid var(--yellow);">
+        <div style="font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--yellow);margin-bottom:1rem;">Key Features</div>
+        <div style="display:flex;flex-direction:column;gap:.8rem;">
+          <div style="display:flex;gap:.8rem;align-items:flex-start;"><div style="width:6px;height:6px;background:var(--red);border-radius:50%;flex-shrink:0;margin-top:.45rem;"></div><div style="font-size:.85rem;color:rgba(255,255,255,.7);line-height:1.5;">Browse &amp; book vetted stylists by specialism (Casual, Formal, Seasonal, Luxury, Accessories, Makeup)</div></div>
+          <div style="display:flex;gap:.8rem;align-items:flex-start;"><div style="width:6px;height:6px;background:var(--red);border-radius:50%;flex-shrink:0;margin-top:.45rem;"></div><div style="font-size:.85rem;color:rgba(255,255,255,.7);line-height:1.5;">Live video chat with stylists — show your wardrobe, get real-time feedback</div></div>
+          <div style="display:flex;gap:.8rem;align-items:flex-start;"><div style="width:6px;height:6px;background:var(--red);border-radius:50%;flex-shrink:0;margin-top:.45rem;"></div><div style="font-size:.85rem;color:rgba(255,255,255,.7);line-height:1.5;">Schedule sessions with a built-in calendar booking system</div></div>
+          <div style="display:flex;gap:.8rem;align-items:flex-start;"><div style="width:6px;height:6px;background:var(--red);border-radius:50%;flex-shrink:0;margin-top:.45rem;"></div><div style="font-size:.85rem;color:rgba(255,255,255,.7);line-height:1.5;">Stylist Activity feed — latest runway picks, trend posts, seasonal advice</div></div>
+          <div style="display:flex;gap:.8rem;align-items:flex-start;"><div style="width:6px;height:6px;background:var(--red);border-radius:50%;flex-shrink:0;margin-top:.45rem;"></div><div style="font-size:.85rem;color:rgba(255,255,255,.7);line-height:1.5;">Premium membership: multiple sessions/month, unlimited video chat, exclusive discounts</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── AUDIENCE ── -->
+<section style="background:#f0ede8;padding:6rem 5vw;">
+  <div class="s-label">Step 1 — Defining the Audience</div>
+  <h2 class="s-title">Who <em>StyleMate</em> Was Built For</h2>
+  <p class="s-body" style="margin-bottom:0;">Research identified seven distinct audience segments, each with different motivations, constraints, and entry points into professional styling advice.</p>
+  <div class="audience-grid">
+    <div class="audience-card"><h4>Fashion Enthusiasts</h4><p>Always seeking new trends and ways to enhance their style. Primary power users.</p></div>
+    <div class="audience-card"><h4>Busy Professionals</h4><p>Value convenience, struggle to make in-person appointments. Need scheduling flexibility.</p></div>
+    <div class="audience-card"><h4>Fashion Novices</h4><p>Lack confidence in fashion choices. Need guidance for various occasions and contexts.</p></div>
+    <div class="audience-card"><h4>Life Changers</h4><p>New job, wedding, major life event. Seeking a fresh wardrobe identity.</p></div>
+    <div class="audience-card"><h4>Remote Workers</h4><p>WFH lifestyle. Virtual styling removes commute barrier entirely.</p></div>
+    <div class="audience-card"><h4>Gift Givers</h4><p>Friends or family gifting personalized style advice for birthdays, holidays, graduations.</p></div>
+    <div class="audience-card"><h4>Special Event Attendees</h4><p>Preparing for weddings, galas, or important meetings — need a guaranteed standout look.</p></div>
+  </div>
+</section>
+
+<!-- ── DESIGN PROCESS ── -->
+<section>
+  <div class="s-label">My Design Process</div>
+  <h2 class="s-title">4 Stages from <em>Problem to Product</em></h2>
+  <div class="process-steps">
+    <div class="ps"><div class="ps-num">01</div><div class="ps-title">Define the Audience</div><div class="ps-sub">Identify who the app serves and their unique needs, pain points, and contexts.</div></div>
+    <div class="ps"><div class="ps-num">02</div><div class="ps-title">Understand Customer Context</div><div class="ps-sub">User interviews, journey mapping, contextual inquiry. Real whiteboard sessions with target users.</div></div>
+    <div class="ps"><div class="ps-num">03</div><div class="ps-title">Design</div><div class="ps-sub">Whiteboard sketching → lo-fi wireframes → hi-fi Figma screens. Iterative, feedback-driven.</div></div>
+    <div class="ps"><div class="ps-num">04</div><div class="ps-title">Measure &amp; Learn</div><div class="ps-sub">Post-launch feedback loops, accessibility audits, continuous iteration based on usage data.</div></div>
+  </div>
+</section>
+
+<!-- ── USER INTERVIEWS / WHITEBOARD ── -->
+<section class="wb-section">
+  <div class="s-label" style="color:var(--yellow);">Step 2 — User Research</div>
+  <h2 class="s-title" style="color:var(--white);">Whiteboard Interview <em style="color:var(--yellow);">Sessions</em></h2>
+  <p style="font-size:1rem;color:rgba(255,255,255,.5);max-width:640px;line-height:1.8;font-weight:300;">User interviews were conducted face-to-face and recorded on a whiteboard in real time — capturing both questions and verbatim responses. The goal: understand how people currently seek styling advice, what frictions they face, and what would make a booking app genuinely useful.</p>
+  <div class="wb-grid">
+    <div class="wb-card">
+      <img class="wb-img" src="https://placehold.co/600x800/111111/ffd600?text=Whiteboard+1%0AUser+Interview+Intro" alt="Whiteboard — User Interview Introduction"/>
+      <div class="wb-caption">
+        <h4>Interview Introduction &amp; Background</h4>
+        <p>Participant: Marketing professional with a passion for fashion. "I seek professional styling advice a few times a year from blogs and social media, but need something more tailored for my events and wardrobe." Booked 3 sessions so far — onboarding was smooth and straightforward.</p>
+      </div>
+    </div>
+    <div class="wb-card">
+      <img class="wb-img" src="https://placehold.co/600x800/111111/e81c1c?text=Whiteboard+2%0AFeatures+%26+Suggestions" alt="Whiteboard — Features and Suggestions"/>
+      <div class="wb-caption">
+        <h4>Key Feature Feedback &amp; Suggestions</h4>
+        <p>"The video chat was definitely the most useful — it let me show my wardrobe and get instant feedback." Suggested feature: ability to save style recommendations from each session directly in-app without needing to screenshot or revisit chat history.</p>
+      </div>
+    </div>
+  </div>
+  <!-- Transcript highlights -->
+  <div style="margin-top:3rem;">
+    <div class="rule-dark"></div>
+    <div style="font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--yellow);margin-bottom:1.5rem;">Key Interview Quotes</div>
+    <div class="transcript-grid">
+      <div class="t-card" style="background:#111;border-left-color:var(--yellow);">
+        <div class="t-q">Q: How often do you seek professional styling advice?</div>
+        <div class="t-a" style="color:rgba(255,255,255,.6);">"I usually seek professional styling advice a few times a year from blogs and social media, but I need something more tailored for my specific events and wardrobe."</div>
+      </div>
+      <div class="t-card" style="background:#111;border-left-color:var(--red);">
+        <div class="t-q">Q: What features did you find most useful?</div>
+        <div class="t-a" style="color:rgba(255,255,255,.6);">"The video chat feature was definitely the most useful. It allowed me to have a real-time conversation with the stylist, show them my wardrobe and get instant feedback and recommendations."</div>
+      </div>
+      <div class="t-card" style="background:#111;border-left-color:var(--yellow);">
+        <div class="t-q">Q: Thoughts on the Premium membership?</div>
+        <div class="t-a" style="color:rgba(255,255,255,.6);">"I think the Premium membership offers great value, especially for users who are serious about improving their style. Having the flexibility to book multiple sessions and access unlimited video chat can really enhance the overall experience."</div>
+      </div>
+      <div class="t-card" style="background:#111;border-left-color:var(--red);">
+        <div class="t-q">Q: Any feature suggestions?</div>
+        <div class="t-a" style="color:rgba(255,255,255,.6);">"One feature I would like to see is the ability to save style recommendations from each session — not having to screenshot or go back to the chat. Overall I've had a positive experience. It's a convenient way to get professional advice without having to leave the house."</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── USER JOURNEY ── -->
+<section>
+  <div class="s-label">User Journey Mapping</div>
+  <h2 class="s-title">Sarah's Journey Through <em>StyleMate</em></h2>
+  <div class="two-col">
+    <div class="s-body">
+      <p>The whiteboard journey map tracked persona <strong>Sarah</strong> through her complete interaction with StyleMate — from first contact to confirmed booking. Each stage was sketched live during the research session, capturing both the screen structure and the emotional context at each touchpoint.</p>
+      <p>The journey revealed four critical moments: discovery via social media, registering and building a style profile, discovering services and stylist guides that spoke to her wardrobe, finding a stylist that matched her aesthetic, and ultimately confirming her first session booking.</p>
+      <p>This mapping directly informed the navigation structure — why Home, Search, Schedule, Notifications, Profile, and Chat are the six core screens in the final wireframes.</p>
+    </div>
+    <div>
+      <div style="background:#f0ede8;padding:1.5rem;margin-bottom:1rem;">
+        <div style="font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);margin-bottom:1rem;">Journey Touchpoints</div>
+        <div style="display:flex;flex-direction:column;gap:.7rem;">
+          <div style="display:flex;align-items:center;gap:1rem;"><div style="width:28px;height:28px;background:var(--black);color:var(--yellow);font-family:'Bebas Neue',sans-serif;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div><div style="font-size:.83rem;color:var(--mid);">Sarah encounters StyleMate via social media</div></div>
+          <div style="display:flex;align-items:center;gap:1rem;"><div style="width:28px;height:28px;background:var(--black);color:var(--yellow);font-family:'Bebas Neue',sans-serif;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div><div style="font-size:.83rem;color:var(--mid);">Registers, creates a profile, sets style preferences</div></div>
+          <div style="display:flex;align-items:center;gap:1rem;"><div style="width:28px;height:28px;background:var(--black);color:var(--yellow);font-family:'Bebas Neue',sans-serif;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div><div style="font-size:.83rem;color:var(--mid);">Discovers variety of services and style guides from wardrobe consulting</div></div>
+          <div style="display:flex;align-items:center;gap:1rem;"><div style="width:28px;height:28px;background:var(--black);color:var(--yellow);font-family:'Bebas Neue',sans-serif;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div><div style="font-size:.83rem;color:var(--mid);">Finds a stylist that speaks to her style — books initial session</div></div>
+          <div style="display:flex;align-items:center;gap:1rem;"><div style="width:28px;height:28px;background:var(--red);color:var(--white);font-family:'Bebas Neue',sans-serif;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✓</div><div style="font-size:.83rem;color:var(--mid);font-weight:600;">Confirms appointment — excited for her session</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── WIREFRAMES ── -->
+<section class="wire-section">
+  <div class="s-label">Whiteboard Wireframes</div>
+  <h2 class="s-title">6 Screens Sketched <em>Live</em></h2>
+  <p class="s-body">Wireframing with login, discovery, schedule, notification, profile, and video chat pages offers a clear pathway for users to navigate through the app. From logging in seamlessly to discovering styling services that match their preferences, scheduling sessions at their convenience, receiving timely notifications, and engaging in productive video chats with stylists — each step was carefully mapped on the whiteboard before moving to Figma.</p>
+  <div class="wire-imgs">
+    <div>
+      <div class="wire-img-wrap">
+        <img src="https://placehold.co/500x380/ffffff/222222?text=Whiteboard+Wireframes%0AHome+·+Search+·+Schedule" alt="Whiteboard wireframes Home, Search, Schedule"/>
+      </div>
+      <div class="wire-label">Home · Search · Schedule</div>
+    </div>
+    <div>
+      <div class="wire-img-wrap">
+        <img src="https://placehold.co/500x380/ffffff/222222?text=Whiteboard+Wireframes%0ANotifications+·+Profile+·+Chat" alt="Whiteboard wireframes Notifications, Profile, Chat"/>
+      </div>
+      <div class="wire-label">Notifications · Profile · Chat</div>
+    </div>
+    <div>
+      <div class="wire-img-wrap">
+        <img src="https://placehold.co/500x380/ffffff/222222?text=User+Journey+Storyboard%0ASarah's+4-Step+Flow" alt="User journey storyboard"/>
+      </div>
+      <div class="wire-label">User Journey — Sarah's Flow</div>
+    </div>
+    <div style="background:var(--black);padding:1.5rem;display:flex;flex-direction:column;justify-content:center;gap:1rem;">
+      <div style="font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--yellow);">Wireframe Screens</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.5rem;">
+        <span style="background:var(--yellow);color:var(--black);font-size:.7rem;font-weight:700;padding:.3rem .7rem;letter-spacing:.05em;">HOME</span>
+        <span style="background:rgba(255,255,255,.1);color:#fff;font-size:.7rem;font-weight:700;padding:.3rem .7rem;letter-spacing:.05em;">SEARCH</span>
+        <span style="background:rgba(255,255,255,.1);color:#fff;font-size:.7rem;font-weight:700;padding:.3rem .7rem;letter-spacing:.05em;">SCHEDULE</span>
+        <span style="background:rgba(255,255,255,.1);color:#fff;font-size:.7rem;font-weight:700;padding:.3rem .7rem;letter-spacing:.05em;">NOTIFICATIONS</span>
+        <span style="background:rgba(255,255,255,.1);color:#fff;font-size:.7rem;font-weight:700;padding:.3rem .7rem;letter-spacing:.05em;">PROFILE</span>
+        <span style="background:var(--red);color:var(--white);font-size:.7rem;font-weight:700;padding:.3rem .7rem;letter-spacing:.05em;">CHAT</span>
+      </div>
+      <p style="font-size:.8rem;color:rgba(255,255,255,.4);line-height:1.6;">Each screen was first sketched with black marker on whiteboard, validated with the team, then translated directly into Figma for the high-fidelity build.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── HI-FI ── -->
+<section class="screens-section">
+  <div class="s-label" style="color:var(--yellow);">High-Fidelity Design</div>
+  <h2 class="s-title" style="color:var(--white);">5 Polished <em style="color:var(--yellow);">Screens</em></h2>
+  <p style="font-size:1rem;color:rgba(255,255,255,.45);max-width:600px;line-height:1.8;font-weight:300;">The final hi-fi screens were built in Figma, using a bold black, white, and red design system with yellow accents — chosen for high contrast, editorial confidence, and immediate brand recognisability in the fashion/style space.</p>
+  <div class="screens-row">
+    <div class="screen-wrap">
+      <img src="https://placehold.co/220x440/0a0806/fafaf8?text=StyleMate%0AOnboarding%0A%0ALog+In+%7C+Sign+Up%0A%0AContinue+as+guest" alt="StyleMate splash/onboarding screen"/>
+      <p>Onboarding</p>
+    </div>
+    <div class="screen-wrap">
+      <img src="https://placehold.co/220x440/0a0806/ffd600?text=Explore%0ACategories%0A%0ACasual+Looks%0AFormal+Attire%0ASeasonal%0AAccessories%0AMakeup+Tips%0ALuxury+Brands" alt="Explore categories screen"/>
+      <p>Explore</p>
+    </div>
+    <div class="screen-wrap">
+      <img src="https://placehold.co/220x440/0a0806/fafaf8?text=Connect+with+a+Stylist%0A%0AFor+You%0ATolu+%7C+Summer+%7C+Trinity%0A%0ARecently+Saved%0ASleek+Sam+%7C+Summer%0A%0AStylist+Activity" alt="Connect with stylist screen"/>
+      <p>Stylists</p>
+    </div>
+    <div class="screen-wrap">
+      <img src="https://placehold.co/220x440/0a0806/fafaf8?text=Schedule+Session%0A%0ADate+Picker%0AJune+Calendar%0A%0ATime+Slots%0A09%3A00+%7C+11%3A00%0A14%3A00+%7C+16%3A00%0A18%3A00+%7C+20%3A00+%7C+22%3A00%0A%0ACONFIRM" alt="Schedule session screen"/>
+      <p>Schedule</p>
+    </div>
+    <div class="screen-wrap">
+      <img src="https://placehold.co/220x440/0a0806/fafaf8?text=Notifications%0A%0ANew%0AStylist+liked+your+style%0AShanne+followed+you%0A%0AThis+week%0AJohn+commented%0ABrix+saved+your+style%0A%0AEarlier%0AMay+%2B+12+others+liked" alt="Notifications screen"/>
+      <p>Notifications</p>
+    </div>
+    <div class="screen-wrap">
+      <img src="https://placehold.co/220x440/0a0806/ffd600?text=Chat+with+Lily%0AAvailable+now%0A%0A%5BPhoto+shared%5D%0A%0ACheck+out+the+latest%0Atrends+in+fashion!%0A%0ALet%27s+schedule+%E2%86%92%0A%5BBOOK%5D%0A%0ACan%27t+wait!" alt="Chat with stylist screen"/>
+      <p>Chat</p>
+    </div>
+  </div>
+  <p style="margin-top:1.5rem;font-size:.78rem;color:rgba(255,255,255,.3);letter-spacing:.06em;">← Scroll to see all screens</p>
+</section>
+
+<!-- ── PREMIUM ── -->
+<div class="premium-band">
+  <h2>Premium<br/>Membership</h2>
+  <div class="premium-items">
+    <div class="pi"><div class="pi-dot"></div><div class="pi-text"><strong>Multiple Styling Sessions:</strong> Book multiple sessions per month with their chosen stylist — ideal for wardrobe overhauls or ongoing style development.</div></div>
+    <div class="pi"><div class="pi-dot"></div><div class="pi-text"><strong>Unlimited Video Chat:</strong> No session-by-session limits. Access ongoing real-time advice from their stylist between bookings.</div></div>
+    <div class="pi"><div class="pi-dot"></div><div class="pi-text"><strong>Exclusive Discounts:</strong> Member discounts on partner clothing and accessories, plus priority access to high-demand stylists.</div></div>
+    <div class="pi"><div class="pi-dot"></div><div class="pi-text"><strong>Membership Tiers:</strong> Basic, Premium, and VIP — with escalating access levels. Users upgrade after their first session when they understand the value.</div></div>
+  </div>
+</div>
+
+<!-- ── LEARNINGS ── -->
+<section>
+  <div class="s-label">Key Learnings</div>
+  <h2 class="s-title">What the Research <em>Taught Us</em></h2>
+  <div class="learnings-grid">
+    <div class="lg"><div class="lg-num">01</div><div class="lg-title">Seamless Onboarding</div><div class="lg-body">Registration must require minimal user effort. Clear instructions and minimal form fields streamline the first impression — users interviewed confirmed the current onboarding felt smooth and intuitive.</div></div>
+    <div class="lg"><div class="lg-num">02</div><div class="lg-title">Transparent Feature Communication</div><div class="lg-body">Clearly communicate which features are gated behind premium. Users need to understand the value proposition before they're willing to upgrade — ambiguity causes drop-off.</div></div>
+    <div class="lg"><div class="lg-num">03</div><div class="lg-title">Intuitive Navigation</div><div class="lg-body">Navigation must be logical and labelled clearly. The whiteboard wireframes helped validate that 6 core screens (Home, Search, Schedule, Notifications, Profile, Chat) cover all primary user needs without overloading the UI.</div></div>
+    <div class="lg"><div class="lg-num">04</div><div class="lg-title">Personalised Recommendations</div><div class="lg-body">Tailor content and stylist suggestions to user style preferences and behaviour. Users who feel the app "gets them" are significantly more likely to book a second session.</div></div>
+    <div class="lg"><div class="lg-num">05</div><div class="lg-title">Secure Payment Process</div><div class="lg-body">Trust is critical in a booking app. Robust encryption, clear pricing display, and multiple payment methods must all be in place before launch to avoid abandonment at checkout.</div></div>
+    <div class="lg"><div class="lg-num">06</div><div class="lg-title">Save Session Recommendations</div><div class="lg-body">Top user request from interviews: the ability to save and revisit style recommendations from each session in-app — without screenshotting or trawling chat history. A future priority feature.</div></div>
+  </div>
+</section>
+
+<!-- ── PROTO CTA ── -->
+<div class="proto-cta">
+  <h2>SEE IT<br/>IN ACTION</h2>
+  <a href="stylemate-prototype.html" class="cta-btn">▶ View Interactive Prototype</a>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <span>StyleMate · UX Case Study · Okey Chiezey · 2024</span>
+  <a href="index.html" class="back-link">← Back to Portfolio</a>
+</footer>
+
+</body>
+</html>
